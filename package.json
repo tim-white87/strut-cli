@@ -24,6 +24,7 @@
   ],
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.380.0",
     "colors": "^1.3.3",
     "commander": "^2.19.0"
   }
