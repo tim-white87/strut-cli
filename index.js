@@ -1,14 +1,12 @@
 #!/bin/node
-// const spawn = require('child_process').spawnSync;
-// const fs = require('fs');
 const program = require('commander');
 const colors = require('colors');
 
 console.log(colors.blue('Welcome to Strut!'));
 
 program
-  .version('0.0.1', '-v, --version')
-  .arguments('<cmd> [value]') // 'initialize an AWS Project'
+  .version(require('./package.json').version)
+  .arguments('<cmd> [value]')
   .action((cmd, value) => {
     switch (cmd) {
       case 'init':
@@ -24,7 +22,7 @@ program
   .on('--help', function () {
     console.log('');
     console.log('Commands:');
-    console.log('  init [name]    Inits a Project as an OU in AWS');
+    console.log('  init [name]    Initialize a project in an OU in AWS');
     console.log('  provision      Provisions the accounts in the project from the infrastructure.json');
   })
   .parse(process.argv);
