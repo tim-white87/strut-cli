@@ -19,8 +19,8 @@ exports.Project = class Project {
   }
 
   async create(name) {
-    let projectToCreate = this.projectsOuChildren.find(ou => ou.Name === name);
-    if (!projectToCreate) {
+    let projectWithName = this.projectsOuChildren.find(ou => ou.Name === name);
+    if (!projectWithName) {
       console.log(colors.green(`Creating ${name} Organizational Unit...`));
       await this.createOrganizationalUnit(name, this.projectsOu.Id);
     } else {
