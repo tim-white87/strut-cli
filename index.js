@@ -15,7 +15,11 @@ program
       case 'provision':
         console.log('provision');
         break;
+      case 'destroy':
+        console.log('destroy');
+        break;
       default:
+        console.log(colors.red(`'${cmd}' command does not exist, try --help for valid commands`));
         break;
     }
   })
@@ -24,9 +28,6 @@ program
     console.log('Commands:');
     console.log('  init [name]    Initialize a project in an OU in AWS');
     console.log('  provision      Provisions the accounts in the project from the infrastructure.json');
+    console.log('  destroy        Destroys the project and all associated accounts including the OU');
   })
   .parse(process.argv);
-
-//   function list(val) {
-//   return val.split(',');
-// }
