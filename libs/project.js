@@ -18,8 +18,7 @@ exports.Project = class Project {
   }
 
   async create(name) {
-    console.log('projects OU', this.projectsOu);
-    console.log(`creating ${name}`);
+    console.log(colors.green(`Creating ${name} Organizational Unit...`));
     await this.createOrganizationalUnit(name, this.projectsOu.Id);
     // await this.createOrganizationalUnit();
     // await this.createAccounts();
@@ -30,9 +29,9 @@ exports.Project = class Project {
     this.projectsOuChildren = await this.mapChildren(this.projectsOu.Id);
     let projectToDestroy = this.projectsOuChildren.find(ou => ou.Name === name);
     if (!projectToDestroy) {
-      console.log(colors.red(`${name} does not exist as a project OU`));
+      console.log(colors.red(`'${name}' does not exist as a project OU`));
     } else {
-      console.log(colors.red(`Destroying ${name} OU...`));
+      console.log(colors.red(`Destroying ${name} Organizational Unit...`));
       await this.deleteOrganizationalUnit(projectToDestroy.Id);
     }
   }

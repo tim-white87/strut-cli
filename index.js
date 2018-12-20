@@ -26,9 +26,13 @@ program
         break;
       case 'destroy':
         let destroy = await inquirer.prompt([{
-          type: 'input',
+          type: 'list',
           name: 'name',
-          message: 'Enter project name to destroy:',
+          message: 'Select project to destroy:',
+          choices: async () => {
+            let projects = await project.mapChildren(project.projectsOu.Id);
+            return projects.map(project => Object.assign({ name: project.Name, value: project.Name }));
+          },
           when () { return !value; }
         }, {
           type: 'confirm',
