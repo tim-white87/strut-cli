@@ -15,18 +15,22 @@ exports.Project = class Project {
       let projectsOu = await this.createOrganizationalUnit('Projects', this.organizationOuMap[0].root.Id);
       this.projectsOu = projectsOu.OrganizationalUnit;
     }
+    this.projectsOuChildren = await this.mapChildren(this.projectsOu.Id);
   }
 
   async create(name) {
-    console.log(colors.green(`Creating ${name} Organizational Unit...`));
-    await this.createOrganizationalUnit(name, this.projectsOu.Id);
-    // await this.createOrganizationalUnit();
+    let projectToCreate = this.projectsOuChildren.find(ou => ou.Name === name);
+    if (!projectToCreate) {
+      console.log(colors.green(`Creating ${name} Organizational Unit...`));
+      await this.createOrganizationalUnit(name, this.projectsOu.Id);
+    } else {
+      console.log(colors.red(`'${name}' is already a project! Please try a unique value.`));
+    }
     // await this.createAccounts();
     // await this.generateProjectRepo();
   }
 
   async destroy(name) {
-    this.projectsOuChildren = await this.mapChildren(this.projectsOu.Id);
     let projectToDestroy = this.projectsOuChildren.find(ou => ou.Name === name);
     if (!projectToDestroy) {
       console.log(colors.red(`'${name}' does not exist as a project OU`));

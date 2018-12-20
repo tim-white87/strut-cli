@@ -30,8 +30,7 @@ program
           name: 'name',
           message: 'Select project to destroy:',
           choices: async () => {
-            let projects = await project.mapChildren(project.projectsOu.Id);
-            return projects.map(project => Object.assign({ name: project.Name, value: project.Name }));
+            return project.projectsOuChildren.map(project => Object.assign({ name: project.Name, value: project.Name }));
           },
           when () { return !value; }
         }, {
