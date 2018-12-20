@@ -10,21 +10,36 @@ program
   .version(require('./package.json').version)
   .arguments('<cmd> [value]')
   .action(async (cmd, value) => {
+    const project = new Project();
+    await project.init();
     switch (cmd) {
       case 'init':
         value = value || await inquirer.prompt([{
           type: 'input',
           name: 'name',
           message: 'Enter project name:'
-        }]);
-        const project = new Project(value);
-        await project.create();
+        }]).name;
+        await project.create(value);
         break;
       case 'provision':
         console.log('provision');
         break;
       case 'destroy':
-        console.log('destroy');
+        let destroy = await inquirer.prompt([{
+          type: 'input',
+          name: 'name',
+          message: 'Enter project name to destroy:',
+          when () { return !value; }
+        }, {
+          type: 'confirm',
+          name: 'forsure',
+          default: false,
+          message: colors.red('Are you sure you want to destroy this?')
+        }]);
+        value = value || destroy.name;
+        if (destroy.forsure) {
+          await project.destroy(value);
+        }
         break;
       default:
         console.log(colors.red(`'${cmd}' command does not exist, try --help for valid commands`));
