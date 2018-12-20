@@ -1,16 +1,18 @@
 #!/bin/node
 const program = require('commander');
 const colors = require('colors');
+const { Project } = require('./libs/project');
 
 console.log(colors.blue('Welcome to Strut!'));
 
 program
   .version(require('./package.json').version)
   .arguments('<cmd> [value]')
-  .action((cmd, value) => {
+  .action(async (cmd, value) => {
     switch (cmd) {
       case 'init':
-        console.log('init', value);
+        const project = new Project(value);
+        await project.create();
         break;
       case 'provision':
         console.log('provision');
