@@ -1,5 +1,6 @@
 #!/bin/node
 const program = require('commander');
+const inquirer = require('inquirer');
 const colors = require('colors');
 const { Project } = require('./libs/project');
 
@@ -11,6 +12,11 @@ program
   .action(async (cmd, value) => {
     switch (cmd) {
       case 'init':
+        value = value || await inquirer.prompt([{
+          type: 'input',
+          name: 'name',
+          message: 'Enter project name:'
+        }]);
         const project = new Project(value);
         await project.create();
         break;
