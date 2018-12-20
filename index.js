@@ -14,11 +14,13 @@ program
     await project.init();
     switch (cmd) {
       case 'init':
-        value = value || await inquirer.prompt([{
+        let init = await inquirer.prompt([{
           type: 'input',
           name: 'name',
-          message: 'Enter project name:'
-        }]).name;
+          message: 'Enter project name:',
+          when () { return !value; }
+        }]);
+        value = value || init.name;
         await project.create(value);
         break;
       case 'provision':
@@ -29,9 +31,7 @@ program
           type: 'list',
           name: 'name',
           message: 'Select project to destroy:',
-          choices: async () => {
-            return project.projectsOuChildren.map(project => Object.assign({ name: project.Name, value: project.Name }));
-          },
+          choices: project.projectsOuChildren.map(project => Object.assign({ name: project.Name, value: project.Name })),
           when () { return !value; }
         }, {
           type: 'confirm',
