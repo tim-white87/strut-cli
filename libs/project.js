@@ -111,7 +111,13 @@ exports.Project = class Project {
     });
   }
 
-  createAccounts() { }
+  createAccount(AccountName, Email) {
+    return new Promise((resolve, reject) => {
+      this.organizations.createAccount({ AccountName, Email }, (err, data) => {
+        err ? reject(err) : resolve(data);
+      });
+    });
+  }
 
   generateProjectRepo() { }
 };
