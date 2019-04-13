@@ -95,7 +95,7 @@ exports.Product = class Product {
       await this.updateProductFile();
       console.log(colors.green('DONE!'));
     } else {
-      console.log(colors.yellow('You already have this provider added'));
+      console.log(colors.red('You already have this provider added'));
     }
   }
 };
