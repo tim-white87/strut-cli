@@ -33,6 +33,13 @@ exports.ProductModel = class ProductModel {
     };
   }
 
+  get providerApplicationModel () {
+    return {
+      name: null,
+      resources: []
+    };
+  }
+
   async init() {
     this.product = await this.loadProduct();
   }
@@ -106,7 +113,15 @@ exports.ProductModel = class ProductModel {
   }
 
   async link (application, provider) {
-    console.dir(application, provider);
     console.log(colors.yellow(`Linking ${colors.gray(application.name)} to ${colors.gray(provider.name)}`));
+    if (provider.applications.some(a => a.name === application.name)) {
+      console.log(colors.red('Application already linked to provider'));
+    } else {
+      this.product.providers
+        .find(p => p.name === provider.name)
+        .applications.push({ ...this.providerApplicationModel, name: application.name });
+      await this.updateProductFile();
+      console.log(colors.green('DONE!'));
+    }
   }
 };
