@@ -25,26 +25,14 @@ exports.Product = class Product {
     };
   };
 
+  get providerModel () {
+    return {
+      name: null
+    };
+  }
+
   async init() {
     this.product = await this.loadProduct();
-  }
-
-  async create (name) {
-    console.log(colors.yellow(`Creating product: ${colors.gray(name)}`));
-    this.name = name || 'myproduct';
-    let dir = `./${name}`;
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-    await this.updateProductFile({ ...this.productModel, name }, dir);
-    console.log(colors.green('DONE!'));
-  }
-
-  async addApplication (application) {
-    console.log(colors.yellow(`Adding application to product: ${colors.gray(application.name)}`));
-    this.product.applications.push(application);
-    await this.updateProductFile();
-    console.log(colors.green('DONE!'));
   }
 
   async loadProduct () {
@@ -80,5 +68,34 @@ exports.Product = class Product {
         }
       );
     });
+  }
+
+  async create (name) {
+    console.log(colors.yellow(`Creating product: ${colors.gray(name)}`));
+    this.name = name || 'myproduct';
+    let dir = `./${name}`;
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    await this.updateProductFile({ ...this.productModel, name }, dir);
+    console.log(colors.green('DONE!'));
+  }
+
+  async addApplication (application) {
+    console.log(colors.yellow(`Adding application to product: ${colors.gray(application.name)}`));
+    this.product.applications.push(application);
+    await this.updateProductFile();
+    console.log(colors.green('DONE!'));
+  }
+
+  async addProvider (provider) {
+    console.log(colors.yellow(`Adding provider to product: ${colors.gray(provider.name)}`));
+    if (!this.product.providers.some(p => p.name === provider.name)) {
+      this.product.providers.push(provider);
+      await this.updateProductFile();
+      console.log(colors.green('DONE!'));
+    } else {
+      console.log(colors.yellow('You already have this provider added'));
+    }
   }
 };

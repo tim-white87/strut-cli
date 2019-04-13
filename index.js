@@ -5,6 +5,7 @@ const colors = require('colors');
 const { Product } = require('./libs/product');
 const createPrompt = require('./libs/prompts/createPrompt');
 const addApplicationPrompt = require('./libs/prompts/addApplicationPrompt');
+const addProviderPrompt = require('./libs/prompts/addProviderPrompt');
 const product = new Product();
 
 console.log(colors.blue('Welcome to Strut!'));
@@ -24,15 +25,15 @@ async function main () {
     });
 
   program
-    .command('add <type>')
+    .command('add <type> [value]')
     .description('Add an <application|provider> to the product')
-    .action(async (type) => {
+    .action(async (type, value) => {
       switch (type) {
         case 'application':
           await addApplicationPrompt(product);
           break;
         case 'provider':
-          // TODO add a cloud provider
+          await addProviderPrompt(product, value);
           break;
         default:
           console.log(colors.red(`'${type}' is not a valid type, try --help for valid commands`));
