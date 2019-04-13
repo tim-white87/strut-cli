@@ -2,16 +2,18 @@
 const program = require('commander');
 const process = require('process');
 const colors = require('colors');
-const { Product } = require('./libs/product');
+const { ProductModel } = require('./libs/productModel');
 const createPrompt = require('./libs/prompts/createPrompt');
 const addApplicationPrompt = require('./libs/prompts/addApplicationPrompt');
 const addProviderPrompt = require('./libs/prompts/addProviderPrompt');
-const product = new Product();
+const linkPrompt = require('./libs/prompts/linkPrompt');
+
+const productModel = new ProductModel();
 
 console.log(colors.blue('Welcome to Strut!'));
 
 async function main () {
-  await product.init();
+  await productModel.init();
 
   program.version(require('./package.json').version);
 
@@ -19,9 +21,9 @@ async function main () {
     .command('create [name]')
     .description('Create a new product')
     .action(async (name) => {
-      await createPrompt(product, name);
-      process.chdir(`./${product.name}`);
-      await addApplicationPrompt(product);
+      await createPrompt(productModel, name);
+      process.chdir(`./${productModel.name}`);
+      await addApplicationPrompt(productModel);
     });
 
   program
@@ -30,15 +32,22 @@ async function main () {
     .action(async (type, value) => {
       switch (type) {
         case 'application':
-          await addApplicationPrompt(product);
+          await addApplicationPrompt(productModel);
           break;
         case 'provider':
-          await addProviderPrompt(product, value);
+          await addProviderPrompt(productModel, value);
           break;
         default:
           console.log(colors.red(`'${type}' is not a valid type, try --help for valid commands`));
           break;
       }
+    });
+
+  program
+    .command('link <application-name> <provider-name>')
+    .description('Links an application to a provider')
+    .action(async (applicationName, providerName) => {
+      await linkPrompt(productModel, applicationName, providerName);
     });
 
   program.parse(process.argv);

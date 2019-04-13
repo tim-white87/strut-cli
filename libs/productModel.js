@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const colors = require('colors');
 
-exports.Product = class Product {
+exports.ProductModel = class ProductModel {
   get productModel() {
     return {
       name: null,
@@ -28,7 +28,8 @@ exports.Product = class Product {
 
   get providerModel () {
     return {
-      name: null
+      name: null,
+      applications: []
     };
   }
 
@@ -84,9 +85,13 @@ exports.Product = class Product {
 
   async addApplication (application) {
     console.log(colors.yellow(`Adding application to product: ${colors.gray(application.name)}`));
-    this.product.applications.push(application);
-    await this.updateProductFile();
-    console.log(colors.green('DONE!'));
+    if (!this.product.applications.some(a => a.name === application.name)) {
+      this.product.applications.push(application);
+      await this.updateProductFile();
+      console.log(colors.green('DONE!'));
+    } else {
+      console.log(colors.red('A name with this application already exists.'));
+    }
   }
 
   async addProvider (provider) {
@@ -98,5 +103,10 @@ exports.Product = class Product {
     } else {
       console.log(colors.red('You already have this provider added'));
     }
+  }
+
+  async link (application, provider) {
+    console.dir(application, provider);
+    console.log(colors.yellow(`Linking ${colors.gray(application.name)} to ${colors.gray(provider.name)}`));
   }
 };
