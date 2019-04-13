@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const colors = require('colors');
 
 exports.Product = class Product {
@@ -18,29 +19,55 @@ exports.Product = class Product {
         type: null,
         url: null
       },
-      path: null, // optionally point at local folder for app
       install: [], // install commands
       build: [], // build commands
       artifacts: [] // artifact paths
     };
   };
 
+  async init() {
+    this.product = await this.loadProduct();
+  }
+
   async create (name) {
     console.log(colors.yellow(`Creating product: ${colors.gray(name)}`));
     this.name = name || 'myproduct';
-    this.dir = `./${name}`;
-    if (!fs.existsSync(this.dir)) {
-      fs.mkdirSync(this.dir);
+    let dir = `./${name}`;
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
     }
-    await this.updateProductFile({ ...this.productModel, name });
+    await this.updateProductFile({ ...this.productModel, name }, dir);
     console.log(colors.green('DONE!'));
   }
 
-  async updateProductFile (data) {
-    let stream = new Promise((resolve, reject) => {
+  async addApplication (application) {
+    console.log(colors.yellow(`Adding application to product: ${colors.gray(application.name)}`));
+    this.product.applications.push(application);
+    await this.updateProductFile();
+    console.log(colors.green('DONE!'));
+  }
+
+  async loadProduct () {
+    return new Promise((resolve, reject) => {
+      fs.stat('product.json', (err, stat) => {
+        if (err.code === 'ENOENT') {
+          resolve(this.productModel);
+        } else {
+          resolve(require('product.json'));
+        }
+      });
+    });
+  }
+
+  updateProductFile (data, dir) {
+    let productJsonPath = 'product.json';
+    if (dir) {
+      productJsonPath = path.resolve(dir, productJsonPath);
+    }
+    return new Promise((resolve, reject) => {
       fs.writeFile(
-        `${this.dir}/product.json`,
-        JSON.stringify(data, null, 2),
+        productJsonPath,
+        JSON.stringify(data || this.product, null, 2),
         (err) => {
           if (err) {
             reject(err);
@@ -49,6 +76,5 @@ exports.Product = class Product {
         }
       );
     });
-    return stream;
   }
 };
