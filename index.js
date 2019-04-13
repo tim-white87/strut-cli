@@ -24,6 +24,8 @@ async function main () {
       await createPrompt(productModel, name);
       process.chdir(`./${productModel.name}`);
       await addApplicationPrompt(productModel);
+      let provider = await addProviderPrompt(productModel);
+      await linkPrompt(productModel, null, provider.name);
     });
 
   program
@@ -35,7 +37,8 @@ async function main () {
           await addApplicationPrompt(productModel);
           break;
         case 'provider':
-          await addProviderPrompt(productModel, value);
+          let provider = await addProviderPrompt(productModel, value);
+          await linkPrompt(productModel, null, provider.name);
           break;
         default:
           console.log(colors.red(`'${type}' is not a valid type, try --help for valid commands`));

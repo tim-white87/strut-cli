@@ -24,6 +24,7 @@ async function addProviderPrompt (product, providerName) {
   if (beginAgainPrompt.beginAgain) {
     await addProviderPrompt(product, providerName);
   }
+  return provider;
 };
 
 module.exports = addProviderPrompt;
