@@ -48,12 +48,16 @@ exports.Product = class Product {
   }
 
   async loadProduct () {
+    const productJson = 'product.json';
     return new Promise((resolve, reject) => {
-      fs.stat('product.json', (err, stat) => {
-        if (err.code === 'ENOENT') {
+      fs.stat(productJson, err => {
+        if (err && err.code === 'ENOENT') {
           resolve(this.productModel);
         } else {
-          resolve(require('product.json'));
+          fs.readFile(productJson, 'utf8', (err, data) => {
+            if (err) throw err;
+            resolve(JSON.parse(data));
+          });
         }
       });
     });

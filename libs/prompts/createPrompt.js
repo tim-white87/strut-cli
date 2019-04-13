@@ -1,14 +1,14 @@
 const inquirer = require('inquirer');
 
-async function createPrompt (product, value) {
+async function createPrompt (product, name) {
   let createPrompt = await inquirer.prompt([{
     type: 'input',
     name: 'name',
     message: 'Enter new strut product:',
-    when () { return !value; }
+    when () { return !name; }
   }]);
-  value = value || createPrompt.name;
-  await product.create(value);
+  name = name || createPrompt.name;
+  await product.create(name);
 };
 
 module.exports = createPrompt;

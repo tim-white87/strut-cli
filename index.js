@@ -9,25 +9,38 @@ const product = new Product();
 
 console.log(colors.blue('Welcome to Strut!'));
 
-program
-  .version(require('./package.json').version)
-  .arguments('<cmd> [value]')
-  .action(async (cmd, value) => {
-    await product.init();
-    switch (cmd) {
-      case 'create':
-        await createPrompt(product, value);
-        process.chdir(`./${value}`);
-        await addApplicationPrompt();
-        break;
-      default:
-        console.log(colors.red(`'${cmd}' command does not exist, try --help for valid commands`));
-        break;
-    }
-  })
-  .on('--help', function () {
-    console.log('');
-    console.log('Commands:');
-    console.log('  create [name]    Create a new product definition');
-  })
-  .parse(process.argv);
+async function main () {
+  await product.init();
+
+  program.version(require('./package.json').version);
+
+  program
+    .command('create [name]')
+    .description('Create a new product')
+    .action(async (name) => {
+      await createPrompt(product, name);
+      process.chdir(`./${product.name}`);
+      await addApplicationPrompt();
+    });
+
+  program
+    .command('add <type>')
+    .description('Add an <application|provider> to the product')
+    .action(async (type) => {
+      switch (type) {
+        case 'application':
+          await addApplicationPrompt();
+          break;
+        case 'provider':
+          // TODO add a cloud provider
+          break;
+        default:
+          console.log(colors.red(`'${type}' is not a valid type, try --help for valid commands`));
+          break;
+      }
+    });
+
+  program.parse(process.argv);
+}
+
+main();
