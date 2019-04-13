@@ -3,7 +3,7 @@ const inquirer = require('inquirer');
 
 async function addApplicationPrompt (product) {
   console.log(colors.yellow('Lets add an application to your product.'));
-  let addApplicationPrompt = await inquirer.prompt([{
+  let prompt = await inquirer.prompt([{
     type: 'confirm',
     name: 'isLocal',
     message: 'Do you have a repository setup?'
@@ -30,14 +30,23 @@ async function addApplicationPrompt (product) {
   }]);
   let application = {
     ...product.applicationModel,
-    name: addApplicationPrompt.name,
-    path: addApplicationPrompt.path,
+    name: prompt.name,
+    path: prompt.path,
     repository: {
-      type: addApplicationPrompt.repoType,
-      url: addApplicationPrompt.repoUrl
+      type: prompt.repoType,
+      url: prompt.repoUrl
     }
   };
   await product.addApplication(application);
+  let beginAgainPrompt = await inquirer.prompt([{
+    type: 'confirm',
+    name: 'beginAgain',
+    default: false,
+    message: 'Do you want to add another applciation?'
+  }]);
+  if (beginAgainPrompt.beginAgain) {
+    await addApplicationPrompt(product);
+  }
 };
 
 module.exports = addApplicationPrompt;

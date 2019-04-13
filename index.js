@@ -20,7 +20,7 @@ async function main () {
     .action(async (name) => {
       await createPrompt(product, name);
       process.chdir(`./${product.name}`);
-      await addApplicationPrompt();
+      await addApplicationPrompt(product);
     });
 
   program
@@ -29,7 +29,7 @@ async function main () {
     .action(async (type) => {
       switch (type) {
         case 'application':
-          await addApplicationPrompt();
+          await addApplicationPrompt(product);
           break;
         case 'provider':
           // TODO add a cloud provider
