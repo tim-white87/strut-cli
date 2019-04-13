@@ -2,7 +2,7 @@
 const program = require('commander');
 const inquirer = require('inquirer');
 const colors = require('colors');
-const { Project } = require('./libs/project');
+const { Product } = require('./libs/product');
 
 console.log(colors.blue('Welcome to Strut!'));
 
@@ -10,40 +10,40 @@ program
   .version(require('./package.json').version)
   .arguments('<cmd> [value]')
   .action(async (cmd, value) => {
-    const project = new Project();
-    await project.init();
+    const product = new Product();
+
     switch (cmd) {
-      case 'init':
-        let init = await inquirer.prompt([{
+      case 'create':
+        let create = await inquirer.prompt([{
           type: 'input',
           name: 'name',
-          message: 'Enter project name:',
+          message: 'Enter new strut product:',
           when () { return !value; }
         }]);
-        value = value || init.name;
-        await project.create(value);
+        value = value || create.name;
+        await product.create(value);
         break;
-      case 'provision':
-        console.log('provision');
-        break;
-      case 'destroy':
-        let destroy = await inquirer.prompt([{
-          type: 'list',
-          name: 'name',
-          message: 'Select project to destroy:',
-          choices: project.projectsOuChildren.map(project => Object.assign({ name: project.Name, value: project.Name })),
-          when () { return !value; }
-        }, {
-          type: 'confirm',
-          name: 'forsure',
-          default: false,
-          message: colors.red('Are you sure you want to destroy this?')
-        }]);
-        value = value || destroy.name;
-        if (destroy.forsure) {
-          await project.destroy(value);
-        }
-        break;
+      // case 'provision':
+      //   console.log('provision');
+      //   break;
+      // case 'destroy':
+      //   let destroy = await inquirer.prompt([{
+      //     type: 'list',
+      //     name: 'name',
+      //     message: 'Select project to destroy:',
+      //     choices: project.projectsOuChildren.map(project => Object.assign({ name: project.Name, value: project.Name })),
+      //     when () { return !value; }
+      //   }, {
+      //     type: 'confirm',
+      //     name: 'forsure',
+      //     default: false,
+      //     message: colors.red('Are you sure you want to destroy this?')
+      //   }]);
+      //   value = value || destroy.name;
+      //   if (destroy.forsure) {
+      //     await project.destroy(value);
+      //   }
+      //   break;
       default:
         console.log(colors.red(`'${cmd}' command does not exist, try --help for valid commands`));
         break;
