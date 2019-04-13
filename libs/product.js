@@ -21,7 +21,8 @@ exports.Product = class Product {
       },
       install: [], // install commands
       build: [], // build commands
-      artifacts: [] // artifact paths
+      artifacts: [], // artifact paths,
+      start: [] // start the application
     };
   };
 
