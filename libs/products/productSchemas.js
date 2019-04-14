@@ -27,7 +27,7 @@ let providerApplication = {
   resources: []
 };
 
-export default {
+module.exports = {
   product,
   application,
   provider,

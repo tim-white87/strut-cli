@@ -50,7 +50,8 @@ exports.ProductModel = class ProductModel {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
-    await this.updateProductFile({ ...productSchemas.product, name }, dir);
+    this.product = { ...productSchemas.product, name };
+    await this.updateProductFile(this.product, dir);
     console.log(colors.green('DONE!'));
   }
 
