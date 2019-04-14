@@ -1,52 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 const colors = require('colors');
+const productSchemas = require('./productSchemas');
 
 exports.ProductModel = class ProductModel {
-  get productModel() {
-    return {
-      name: null,
-      version: '0.0.0',
-      applications: [],
-      providers: []
-    };
-  };
-
-  get applicationModel () {
-    return {
-      name: null,
-      repository: {
-        type: null,
-        url: null
-      },
-      install: [], // install commands
-      build: [], // build commands
-      artifacts: [], // artifact paths,
-      start: [] // start the application
-    };
-  };
-
-  get providerModel () {
-    return {
-      name: null,
-      applications: []
-    };
-  }
-
-  get providerApplicationModel () {
-    return {
-      name: null,
-      resources: []
-    };
-  }
-
   async init() {
     this.product = await this.loadProduct();
   }
 
   async loadProduct () {
     const productJson = 'product.json';
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       fs.stat(productJson, err => {
         if (err && err.code === 'ENOENT') {
           resolve(this.productModel);
@@ -86,7 +50,7 @@ exports.ProductModel = class ProductModel {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
-    await this.updateProductFile({ ...this.productModel, name }, dir);
+    await this.updateProductFile({ ...productSchemas.product, name }, dir);
     console.log(colors.green('DONE!'));
   }
 
@@ -119,7 +83,7 @@ exports.ProductModel = class ProductModel {
     } else {
       this.product.providers
         .find(p => p.name === provider.name)
-        .applications.push({ ...this.providerApplicationModel, name: application.name });
+        .applications.push({ ...productSchemas.providerApplication, name: application.name });
       await this.updateProductFile();
       console.log(colors.green('DONE!'));
     }

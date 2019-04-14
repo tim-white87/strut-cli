@@ -1,7 +1,8 @@
 const colors = require('colors');
 const inquirer = require('inquirer');
+const productSchemas = require('../products/productSchemas');
 
-async function addApplicationPrompt (product) {
+async function addApplicationPrompt (productModel) {
   console.log(colors.yellow('Lets add an application to your product.'));
   let prompt = await inquirer.prompt([{
     type: 'confirm',
@@ -29,7 +30,7 @@ async function addApplicationPrompt (product) {
     when () { return !this.isLocal; }
   }]);
   let application = {
-    ...product.applicationModel,
+    ...productSchemas.application,
     name: prompt.name,
     path: prompt.path,
     repository: {
@@ -37,7 +38,7 @@ async function addApplicationPrompt (product) {
       url: prompt.repoUrl
     }
   };
-  await product.addApplication(application);
+  await productModel.addApplication(application);
   let beginAgainPrompt = await inquirer.prompt([{
     type: 'confirm',
     name: 'beginAgain',
@@ -45,7 +46,7 @@ async function addApplicationPrompt (product) {
     message: 'Do you want to add another applciation?'
   }]);
   if (beginAgainPrompt.beginAgain) {
-    await addApplicationPrompt(product);
+    await addApplicationPrompt(productModel);
   }
 };
 

@@ -1,0 +1,4 @@
+
+exports.AwsModel = class AwsModel {
+
+};

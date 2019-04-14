@@ -2,7 +2,7 @@
 const program = require('commander');
 const process = require('process');
 const colors = require('colors');
-const { ProductModel } = require('./libs/productModel');
+const { ProductModel } = require('./libs/products/productModel');
 const createPrompt = require('./libs/prompts/createPrompt');
 const addApplicationPrompt = require('./libs/prompts/addApplicationPrompt');
 const addProviderPrompt = require('./libs/prompts/addProviderPrompt');
