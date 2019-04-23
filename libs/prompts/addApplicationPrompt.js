@@ -4,30 +4,24 @@ const productSchemas = require('../products/productSchemas');
 
 async function addApplicationPrompt (productModel) {
   console.log(colors.yellow('Lets add an application to your product.'));
-  let prompt = await inquirer.prompt([{
-    type: 'confirm',
-    name: 'isLocal',
-    message: 'Do you have a repository setup?'
-  }, {
+  let prompt = await inquirer.prompt([ {
     type: 'input',
     name: 'path',
-    when () { return this.isLocal; }
+    message: 'Please provide the local path to your application:'
   }, {
     type: 'list',
     name: 'repoType',
-    choices: ['git', 'svn', 'mercurial'],
-    when () { return !this.isLocal; }
+    choices: ['git', 'svn', 'mercurial']
   }, {
     type: 'input',
     name: 'repoUrl',
-    when () { return !this.isLocal; }
+    message: 'Provide the remote URL to your code:'
   }, {
     type: 'input',
     name: 'name',
     default (answers) {
       return answers.repoUrl.split('/').pop().split('.')[0];
-    },
-    when () { return !this.isLocal; }
+    }
   }]);
   let application = {
     ...productSchemas.application,
