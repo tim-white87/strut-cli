@@ -57,7 +57,7 @@ async function main () {
 
   program
     .command('run <cmd> [applications]')
-    .description('Runs the specified command for the product applications (separated with a comma). Default will run all apps.')
+    .description('Runs the specified command (install|build|start) for the product applications (separated with a comma). Default will run all apps.')
     .action((cmd, applications) => {
       if (applications) {
         applications = utils.list(applications).map(a => {
@@ -67,8 +67,8 @@ async function main () {
         applications = productModel.product.applications;
       }
       applications.forEach(app => {
-        if (app[cmd]) {
-          utils.run(app[cmd].join(' '), [], { cwd: app.path });
+        if (app.commands[cmd]) {
+          utils.run(app.commands[cmd].join(' '), [], { cwd: app.path });
         }
       });
     });

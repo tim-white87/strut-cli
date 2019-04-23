@@ -7,14 +7,17 @@ let product = {
 
 let application = {
   name: null,
+  path: null,
   repository: {
     type: null,
     url: null
   },
-  install: [], // install commands
-  build: [], // build commands
-  artifacts: [], // artifact paths,
-  start: [] // start the application
+  commands: {
+    install: [], // install commands
+    build: [], // build commands
+    start: [] // start commands
+  },
+  artifacts: [] // artifact paths,
 };
 
 let provider = {
