@@ -48,6 +48,7 @@ async function main () {
       }
     });
 
+  // TODO lets drop providers directly on application
   program
     .command('link <application-name> <provider-name>')
     .description('Links an application to a provider')
@@ -57,7 +58,7 @@ async function main () {
 
   program
     .command('run <cmd> [applications]')
-    .description('Runs the specified command (install|build|start) for the product applications (separated with a comma). Default will run all apps.')
+    .description('Runs the specified command <install|build|start> for the product applications (separated with a comma). Default will run all apps.')
     .action((cmd, applications) => {
       if (applications) {
         applications = utils.list(applications).map(a => {

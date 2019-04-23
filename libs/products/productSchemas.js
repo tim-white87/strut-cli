@@ -1,8 +1,7 @@
 let product = {
   name: null,
   version: '0.0.0',
-  applications: [],
-  providers: []
+  applications: []
 };
 
 let application = {
