@@ -16,15 +16,11 @@ let application = {
     build: [], // build commands
     start: [] // start commands
   },
-  artifacts: [] // artifact paths,
+  artifacts: [], // artifact paths
+  providers: {}
 };
 
 let provider = {
-  name: null,
-  applications: []
-};
-
-let providerApplication = {
   name: null,
   resources: []
 };
@@ -32,6 +28,5 @@ let providerApplication = {
 module.exports = {
   product,
   application,
-  provider,
-  providerApplication
+  provider
 };

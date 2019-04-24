@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const colors = require('colors');
 const productSchemas = require('./productSchemas');
 
@@ -9,7 +8,7 @@ exports.ProductModel = class ProductModel {
   }
 
   async loadProduct () {
-    const productJson = 'product.json';
+    const productJson = './strut/product.json';
     return new Promise(resolve => {
       fs.stat(productJson, err => {
         if (err && err.code === 'ENOENT') {
@@ -24,11 +23,8 @@ exports.ProductModel = class ProductModel {
     });
   }
 
-  updateProductFile (data, dir) {
-    let productJsonPath = 'product.json';
-    if (dir) {
-      productJsonPath = path.resolve(dir, productJsonPath);
-    }
+  updateProductFile (data) {
+    const productJsonPath = './strut/product.json';
     return new Promise((resolve, reject) => {
       fs.writeFile(
         productJsonPath,
@@ -44,14 +40,14 @@ exports.ProductModel = class ProductModel {
   }
 
   async create (name) {
-    console.log(colors.yellow(`Creating product: ${colors.gray(name)}`));
-    this.name = name || 'myproduct';
-    let dir = `./${name}`;
+    this.name = name || process.cwd().split('/').pop();
+    console.log(colors.yellow(`Creating product: ${colors.gray(this.name)}`));
+    let dir = `./strut`;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
     this.product = { ...productSchemas.product, name };
-    await this.updateProductFile(this.product, dir);
+    await this.updateProductFile(this.product);
     console.log(colors.green('DONE!'));
   }
 
@@ -66,27 +62,14 @@ exports.ProductModel = class ProductModel {
     }
   }
 
-  async addProvider (provider) {
-    console.log(colors.yellow(`Adding provider to product: ${colors.gray(provider.name)}`));
-    if (!this.product.providers.some(p => p.name === provider.name)) {
-      this.product.providers.push(provider);
+  async updateApplication (application) {
+    console.log(colors.yellow(`Updating ${colors.gray(application.name)}: ${colors.gray(application.name)}`));
+    let existingApplication = this.product.applications.find(a => a.name === application.name);
+    if (existingApplication) {
+      existingApplication = { ...existingApplication, ...application };
       await this.updateProductFile();
-      console.log(colors.green('DONE!'));
     } else {
-      console.log(colors.red('You already have this provider added'));
-    }
-  }
-
-  async link (application, provider) {
-    console.log(colors.yellow(`Linking ${colors.gray(application.name)} to ${colors.gray(provider.name)}`));
-    if (provider.applications.some(a => a.name === application.name)) {
-      console.log(colors.red('Application already linked to provider'));
-    } else {
-      this.product.providers
-        .find(p => p.name === provider.name)
-        .applications.push({ ...productSchemas.providerApplication, name: application.name });
-      await this.updateProductFile();
-      console.log(colors.green('DONE!'));
+      console.log(colors.red('No application with this name exists'));
     }
   }
 };
