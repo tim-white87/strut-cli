@@ -48,6 +48,7 @@ async function main () {
     .command('run <cmd> [applications]')
     .description('Runs the specified command <install|build|start> for the product applications (separated with a comma). Default will run all apps.')
     .action((cmd, applications) => {
+      console.log(colors.blue(`run: ${colors.gray(cmd)}`));
       if (applications) {
         applications = utils.list(applications).map(a => {
           return productModel.product.applications.find(app => app.name === a);
