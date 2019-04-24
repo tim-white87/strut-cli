@@ -27,7 +27,7 @@ async function addProviderPrompt (productModel, providerName, applicationName) {
   }]);
   let application = productModel.product.applications.find(a => a.name === applicationName) || prompt.application;
   providerName = providerName || prompt.providerName;
-  console.log(application);
+
   application.providers[providerName] = {
     ...productSchemas.provider,
     name: providerName
