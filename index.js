@@ -56,8 +56,10 @@ async function main () {
         applications = productModel.product.applications;
       }
       applications.forEach(app => {
-        if (app.commands[cmd]) {
+        if (app.commands[cmd] && app.commands[cmd].length > 0) {
           utils.run(app.commands[cmd].join(' '), [], { cwd: app.path });
+        } else {
+          console.log(colors.yellow(`No ${colors.gray(cmd)} command defined for ${colors.gray(app.name)}`));
         }
       });
     });
