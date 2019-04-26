@@ -1,6 +1,7 @@
 #!/bin/node
 const program = require('commander');
 const process = require('process');
+const fs = require('fs');
 const colors = require('colors');
 const utils = require('./libs/utils');
 const { ProductModel } = require('./libs/products/productModel');
@@ -13,6 +14,11 @@ const productModel = new ProductModel();
 console.log(colors.blue('Welcome to Strut!'));
 
 async function main () {
+  const strutDir = 'strut';
+  if (fs.existsSync(strutDir)) {
+    process.chdir(strutDir);
+  }
+
   await productModel.init();
 
   program.version(require('./package.json').version);

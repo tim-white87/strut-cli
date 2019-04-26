@@ -13,6 +13,7 @@ let application = {
   },
   commands: {
     install: [], // install commands
+    validate: [], // validate commands (i.e. test, lint, etc.)
     build: [], // build commands
     start: [] // start commands
   },
@@ -22,11 +23,16 @@ let application = {
 
 let provider = {
   name: null,
-  resources: []
+  infrastructure: []
+};
+
+let infrastructure = {
+  path: null
 };
 
 module.exports = {
   product,
   application,
-  provider
+  provider,
+  infrastructure
 };

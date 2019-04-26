@@ -8,7 +8,7 @@ exports.ProductModel = class ProductModel {
   }
 
   async loadProduct () {
-    const productJson = './strut/product.json';
+    const productJson = 'product.json';
     return new Promise(resolve => {
       fs.stat(productJson, err => {
         if (err && err.code === 'ENOENT') {
@@ -24,7 +24,7 @@ exports.ProductModel = class ProductModel {
   }
 
   updateProductFile (data) {
-    const productJsonPath = './strut/product.json';
+    const productJsonPath = 'product.json';
     return new Promise((resolve, reject) => {
       fs.writeFile(
         productJsonPath,
