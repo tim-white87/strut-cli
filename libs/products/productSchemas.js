@@ -26,7 +26,7 @@ let provider = {
   infrastructure: []
 };
 
-let infrastructure = {
+let resource = {
   path: null
 };
 
@@ -34,5 +34,5 @@ module.exports = {
   product,
   application,
   provider,
-  infrastructure
+  resource
 };

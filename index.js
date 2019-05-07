@@ -5,6 +5,7 @@ const fs = require('fs');
 const colors = require('colors');
 const utils = require('./libs/utils');
 const { ProductModel } = require('./libs/products/productModel');
+const { providerMap } = require('./libs/providers/providersModel');
 const createPrompt = require('./libs/prompts/createPrompt');
 const addApplicationPrompt = require('./libs/prompts/addApplicationPrompt');
 const addProviderPrompt = require('./libs/prompts/addProviderPrompt');
@@ -67,6 +68,30 @@ async function main () {
           utils.run(app.commands[cmd].join(' '), [], { cwd: app.path });
         } else {
           console.log(colors.yellow(`No ${colors.gray(cmd)} command defined for ${colors.gray(app.name)}`));
+        }
+      });
+    });
+
+  program
+    .command('deploy [applications] [providers]')
+    .description('Deploys the applications to the specified provider. Defaults to all applications deployed to all providers')
+    .action((applications, providers) => {
+      if (applications) {
+        applications = utils.list(applications).map(a => {
+          return productModel.product.applications.find(app => app.name === a);
+        });
+      } else {
+        applications = productModel.product.applications;
+      }
+      if (providers) {
+        providers = utils.list(providers);
+      }
+      applications.forEach(async app => {
+        // TODO filter based on specified providers
+        for (let provider in app.providers) {
+          let Model = providerMap.get(provider);
+          let model = new Model(app);
+          await model.load();
         }
       });
     });
