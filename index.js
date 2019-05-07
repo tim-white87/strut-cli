@@ -87,11 +87,12 @@ async function main () {
         providers = utils.list(providers);
       }
       applications.forEach(async app => {
-        // TODO filter based on specified providers
         for (let provider in app.providers) {
-          let Model = providerMap.get(provider);
-          let model = new Model(app);
-          await model.load();
+          if (!providers || providers.some(p => p === provider)) {
+            let Model = providerMap.get(provider);
+            let model = new Model(app);
+            await model.load();
+          }
         }
       });
     });
