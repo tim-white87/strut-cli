@@ -11,11 +11,16 @@ async function addProviderPrompt (productModel, providerName, applicationName) {
     message: 'Select a provider:',
     when () { return !providerName; }
   }, {
-    type: 'list',
+    type: 'checkbox',
     name: 'application',
-    choices: productModel.product.applications.map(a => {
-      return { name: a.name, value: a };
-    }),
+    choices (input) {
+      let choices = productModel.product.applications
+        .filter(a => !a.providers[input.providerName])
+        .map(a => {
+          return { name: a.name, value: a, checked: true };
+        });
+      return choices;
+    },
     message: 'Select application:',
     when () {
       if (applicationName && !productModel.product.applications.some(a => a.name === applicationName)) {
