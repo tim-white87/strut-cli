@@ -1,8 +1,9 @@
 const colors = require('colors');
 const inquirer = require('inquirer');
 const productSchemas = require('../products/productSchemas');
+const utils = require('../utils');
 
-async function addProviderPrompt (productModel, providerName, applicationName) {
+async function addProviderPrompt (productModel, providerName, applicationNames) {
   console.log(colors.yellow('Lets add a provider to your product.'));
   let prompt = await inquirer.prompt([{
     type: 'list',
@@ -12,32 +13,44 @@ async function addProviderPrompt (productModel, providerName, applicationName) {
     when () { return !providerName; }
   }, {
     type: 'checkbox',
-    name: 'application',
+    name: 'applicationNames',
     choices (input) {
       let choices = productModel.product.applications
-        .filter(a => !a.providers[input.providerName])
+        .filter(a => !a.providers || !a.providers[input.providerName])
         .map(a => {
-          return { name: a.name, value: a, checked: true };
+          return { name: a.name, value: a.name, checked: true };
         });
       return choices;
     },
-    message: 'Select application:',
+    message: 'Select application(s):',
     when () {
-      if (applicationName && !productModel.product.applications.some(a => a.name === applicationName)) {
-        console.log(colors.red('Application not listed in product'));
-        return true;
+      if (applicationNames) {
+        let appNames = utils.list(applicationNames);
+        for (let i = 0; i < appNames; i++) {
+          if (!productModel.product.applications.some(a => a.name === appNames[i])) {
+            console.log(colors.red(`Application: ${appNames[i].name} not listed in product`));
+            return true;
+          }
+        }
       }
-      return !applicationName;
+      return !applicationNames;
     }
   }]);
-  let application = productModel.product.applications.find(a => a.name === applicationName) || prompt.application;
+  applicationNames = utils.list(applicationNames) || prompt.applicationNames;
   providerName = providerName || prompt.providerName;
+  productModel.product.applications.forEach(app => {
+    if (applicationNames.some(name => name === app.name)) {
+      app.providers = app.providers || {};
+      if (!app.providers[providerName]) {
+        app.providers[providerName] = {
+          ...productSchemas.provider,
+          name: providerName
+        };
+      }
+    }
+  });
 
-  application.providers[providerName] = {
-    ...productSchemas.provider,
-    name: providerName
-  };
-  await productModel.updateApplication(application);
+  await productModel.updateProductFile();
 
   let beginAgainPrompt = await inquirer.prompt([{
     type: 'confirm',

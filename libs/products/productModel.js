@@ -8,7 +8,7 @@ exports.ProductModel = class ProductModel {
   }
 
   async loadProduct () {
-    const productJson = 'product.json';
+    const productJson = 'strut.json';
     return new Promise(resolve => {
       fs.stat(productJson, err => {
         if (err && err.code === 'ENOENT') {
@@ -24,7 +24,7 @@ exports.ProductModel = class ProductModel {
   }
 
   updateProductFile (data) {
-    const productJsonPath = 'product.json';
+    const productJsonPath = 'strut.json';
     return new Promise((resolve, reject) => {
       fs.writeFile(
         productJsonPath,
@@ -42,7 +42,7 @@ exports.ProductModel = class ProductModel {
   async create (name) {
     this.name = name || process.cwd().split('/').pop();
     console.log(colors.yellow(`Creating product: ${colors.gray(this.name)}`));
-    let dir = `./strut`;
+    let dir = `./`;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
@@ -62,14 +62,14 @@ exports.ProductModel = class ProductModel {
     }
   }
 
-  async updateApplication (application) {
-    console.log(colors.yellow(`Updating ${colors.gray(application.name)}: ${colors.gray(application.name)}`));
-    let existingApplication = this.product.applications.find(a => a.name === application.name);
-    if (existingApplication) {
-      existingApplication = { ...existingApplication, ...application };
-      await this.updateProductFile();
-    } else {
-      console.log(colors.red('No application with this name exists'));
-    }
-  }
+  // async updateApplication (application) {
+  //   console.log(colors.yellow(`Updating ${colors.gray(application.name)}: ${colors.gray(application.name)}`));
+  //   let existingApplication = this.product.applications.find(a => a.name === application.name);
+  //   if (existingApplication) {
+  //     existingApplication = { ...existingApplication, ...application };
+  //     await this.updateProductFile();
+  //   } else {
+  //     console.log(colors.red('No application with this name exists'));
+  //   }
+  // }
 };

@@ -12,7 +12,9 @@ async function run (command, args = [], options) {
 }
 
 function list(val) {
-  return val.split(',');
+  if (val) {
+    return val.split(',');
+  }
 }
 
 module.exports = {
