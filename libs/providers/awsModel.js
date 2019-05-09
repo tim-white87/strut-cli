@@ -16,6 +16,8 @@ class AwsModel extends ProviderModel {
       return { ...resource, fileData: this.infrastructureFiles[i] };
     });
     console.log(this.infrastructureData);
+    // TODO implement cloudformation
+    // TODO https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html
   }
 };
 
