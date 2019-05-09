@@ -27,6 +27,7 @@ let provider = {
 };
 
 let resource = {
+  name: null,
   path: null,
   body: null
 };
