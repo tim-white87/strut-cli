@@ -1,3 +1,4 @@
+const { run } = require('../utils');
 const { BaseProviderModel } = require('./baseProviderModel');
 const { Providers } = require('./providers');
 process.env.AWS_SDK_LOAD_CONFIG = true;
@@ -9,14 +10,20 @@ class AwsModel extends BaseProviderModel {
 
   async init() {
     await super.init();
+    await this.runCommands();
     await this.buildStacks();
   }
 
+  async runCommands () {
+    await run(this.provider.commands.join(' '), [], { cwd: this.application.path });
+  }
+
+  /**
+   *  https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html
+   */
   async buildStacks () {
     await this.getStacks();
 
-    // TODO implement cloudformation
-    // TODO https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html
     let buildStackRequests = this.infrastructureData.map((resource, i) => {
       return new Promise(resolve => {
         let StackName = `${this.application.name}-${resource.name || i}-stack`;

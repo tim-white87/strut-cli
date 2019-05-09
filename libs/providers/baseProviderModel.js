@@ -3,7 +3,8 @@ const { readFile } = require('../utils');
 
 class BaseProviderModel {
   get providerName () {}
-  get infrastructure () { return this.application.providers[this.providerName].infrastructure; }
+  get provider () { return this.application.providers[this.providerName]; }
+  get infrastructure () { return this.provider.infrastructure; }
 
   constructor(application) {
     this.application = application;

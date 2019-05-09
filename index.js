@@ -89,8 +89,7 @@ async function main () {
       applications.forEach(async app => {
         for (let provider in app.providers) {
           if (!providers || providers.some(p => p === provider)) {
-            if (app.providers[provider] && app.providers[provider].infrastructure &&
-              app.providers[provider].infrastructure.length > 0) {
+            if (app.providers[provider] && (app.providers[provider].commands || (app.providers[provider].infrastructure && app.providers[provider].infrastructure.length > 0))) {
               let Model = ProvidersMap.get(provider);
               let model = new Model(app);
               await model.init();
