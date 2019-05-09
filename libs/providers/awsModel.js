@@ -1,7 +1,8 @@
-const { readFile } = require('../utils');
 const path = require('path');
-const CloudFormation = require('aws-sdk/clients/cloudformation');
+const { readFile } = require('../utils');
 const { ProviderModel } = require('./baseProviderModel');
+process.env.AWS_SDK_LOAD_CONFIG = true;
+const CloudFormation = require('aws-sdk/clients/cloudformation');
 const cloudformation = new CloudFormation();
 
 class AwsModel extends ProviderModel {
@@ -17,6 +18,9 @@ class AwsModel extends ProviderModel {
       return { ...resource, fileData: this.infrastructureFiles[i] };
     });
     console.log(this.infrastructureData);
+    cloudformation.describeStacks((err, data) => {
+      console.log(err, data);
+    });
     // TODO implement cloudformation
     // TODO https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html
   }
