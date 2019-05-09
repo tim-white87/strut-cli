@@ -6,6 +6,7 @@ const cloudformation = new CloudFormation();
 
 class AwsModel extends ProviderModel {
   async init() {
+    // TODO abstract this and put in base model
     this.providerName = this.application.providers.AWS.name || 'AWS';
     this.infrastructure = this.application.providers.AWS.infrastructure;
     this.infrastructureFiles = await Promise.all(this.infrastructure.map(
