@@ -5,7 +5,7 @@ const fs = require('fs');
 const colors = require('colors');
 const utils = require('./libs/utils');
 const { ProductModel } = require('./libs/products/productModel');
-const { providerMap } = require('./libs/providers/providersModel');
+const { ProvidersMap } = require('./libs/providers/providersMap');
 const createPrompt = require('./libs/prompts/createPrompt');
 const addApplicationPrompt = require('./libs/prompts/addApplicationPrompt');
 const addProviderPrompt = require('./libs/prompts/addProviderPrompt');
@@ -89,7 +89,7 @@ async function main () {
       applications.forEach(async app => {
         for (let provider in app.providers) {
           if (!providers || providers.some(p => p === provider)) {
-            let Model = providerMap.get(provider);
+            let Model = ProvidersMap.get(provider);
             let model = new Model(app);
             await model.init();
           }

@@ -1,16 +1,11 @@
+const { Providers } = require('./providers');
 const { AwsModel } = require('./awsModel');
 
-const Providers = {
-  AWS: 'AWS',
-  GCP: 'GCP'
-};
-
-let providerMap = new Map([
+let ProvidersMap = new Map([
   [Providers.AWS, AwsModel],
   [Providers.GCP, null]
 ]);
 
 module.exports = {
-  providers,
-  providerMap
+  ProvidersMap
 };

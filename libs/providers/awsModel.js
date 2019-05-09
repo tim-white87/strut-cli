@@ -1,5 +1,5 @@
 const { BaseProviderModel } = require('./baseProviderModel');
-const { Providers } = require('./providersModel');
+const { Providers } = require('./providers');
 process.env.AWS_SDK_LOAD_CONFIG = true;
 const CloudFormation = require('aws-sdk/clients/cloudformation');
 const cloudformation = new CloudFormation();
