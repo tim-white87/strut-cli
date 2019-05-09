@@ -1,5 +1,6 @@
 const { spawn } = require('child_process');
 const colors = require('colors');
+const fs = require('fs');
 
 async function run (command, args = [], options) {
   console.log(colors.gray('Path: ', colors.green(options.cwd || process.cwd())));
@@ -17,7 +18,27 @@ function list(val) {
   }
 }
 
+function readFile (path) {
+  return new Promise((resolve, reject) => {
+    fs.stat(path, err => {
+      if (err && err.code === 'ENOENT') {
+        reject(err);
+      } else {
+        fs.readFile(path, 'utf8', (err, data) => {
+          if (err) throw err;
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      }
+    });
+  });
+}
+
 module.exports = {
   run,
-  list
+  list,
+  readFile
 };

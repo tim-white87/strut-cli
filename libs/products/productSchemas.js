@@ -27,7 +27,8 @@ let provider = {
 };
 
 let resource = {
-  path: null
+  path: null,
+  body: null
 };
 
 module.exports = {

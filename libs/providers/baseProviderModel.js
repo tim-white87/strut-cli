@@ -3,7 +3,7 @@ class ProviderModel {
     this.application = application;
   }
 
-  async load() {
+  async init() {
 
   }
 }

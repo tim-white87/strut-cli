@@ -91,7 +91,7 @@ async function main () {
           if (!providers || providers.some(p => p === provider)) {
             let Model = providerMap.get(provider);
             let model = new Model(app);
-            await model.load();
+            await model.init();
           }
         }
       });
