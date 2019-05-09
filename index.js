@@ -73,8 +73,8 @@ async function main () {
     });
 
   program
-    .command('deploy [applications] [providers]')
-    .description('Deploys the applications to the specified provider. Defaults to all applications deployed to all providers')
+    .command('provision [applications] [providers]')
+    .description('Provisions the defined infrastructure for the applications to the specified provider. Defaults to all applications deployed to all providers')
     .action((applications, providers) => {
       if (applications) {
         applications = utils.list(applications).map(a => {
