@@ -1,23 +1,15 @@
-const path = require('path');
-const { readFile } = require('../utils');
-const { ProviderModel } = require('./baseProviderModel');
+const { BaseProviderModel } = require('./baseProviderModel');
+const { Providers } = require('./providersModel');
 process.env.AWS_SDK_LOAD_CONFIG = true;
 const CloudFormation = require('aws-sdk/clients/cloudformation');
 const cloudformation = new CloudFormation();
 
-class AwsModel extends ProviderModel {
+class AwsModel extends BaseProviderModel {
+  get providerName () { return Providers.AWS; }
+
   async init() {
-    // TODO abstract this and put in base model
-    this.providerName = this.application.providers.AWS.name || 'AWS';
-    this.infrastructure = this.application.providers.AWS.infrastructure;
-    this.infrastructureFiles = await Promise.all(this.infrastructure.map(
-      resource => {
-        return readFile(path.join(this.application.path, resource.path));
-      }));
-    this.infrastructureData = this.infrastructure.map((resource, i) => {
-      return { ...resource, fileData: this.infrastructureFiles[i] };
-    });
-    console.log(this.infrastructureData);
+    super.init();
+
     cloudformation.describeStacks((err, data) => {
       console.log(err, data);
     });
