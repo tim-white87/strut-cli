@@ -61,6 +61,7 @@ class AwsModel extends BaseProviderModel {
     });
 
     let buildStacksResult = await Promise.all(buildStackRequests);
+    // TODO set up watchers to watch the stack status
     console.log(buildStacksResult);
   }
 
