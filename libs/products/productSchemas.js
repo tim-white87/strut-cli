@@ -4,8 +4,7 @@ let product = {
   applications: []
 };
 
-let application = {
-  name: null,
+let localConifg = {
   path: null,
   repository: {
     type: null,
@@ -17,19 +16,32 @@ let application = {
     build: [], // build commands
     start: [] // start commands
   },
-  artifacts: [], // artifact paths
+  artifacts: [] // artifact paths
+};
+
+let application = {
+  name: null,
+  version: null,
+  localConifg,
   providers: {}
+};
+
+let commands = {
+  pre_provision: null, // runs before infrastructure provisioning
+  post_provision: null // runs after infrastructure provisioning
 };
 
 let provider = {
   name: null,
-  infrastructure: []
+  infrastructure: [],
+  commands
 };
 
 let resource = {
   name: null,
   path: null,
-  body: null
+  body: null,
+  commands
 };
 
 module.exports = {

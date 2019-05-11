@@ -10,17 +10,19 @@ class AwsModel extends BaseProviderModel {
 
   async init() {
     await super.init();
-    await this.runCommands();
     await this.buildStacks();
+    await this.runCommands();
   }
 
   async runCommands () {
-    let command = await run(this.provider.commands.join(' '), [], { cwd: this.application.path });
-    return new Promise(resolve => {
-      command.on('close', code => {
-        resolve(code);
+    if (this.provider.commands) {
+      let command = await run(this.provider.commands.join(' '), [], { cwd: this.application.path });
+      return new Promise(resolve => {
+        command.on('close', code => {
+          resolve(code);
+        });
       });
-    });
+    }
   }
 
   /**
