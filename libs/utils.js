@@ -2,13 +2,18 @@ const { spawn } = require('child_process');
 const colors = require('colors');
 const fs = require('fs');
 
-function run (command, args = [], options) {
+async function run (command, args = [], options) {
   console.log(colors.gray('Path: ', colors.green(options.cwd || process.cwd())));
   console.log(colors.gray('Command: ', colors.green(command)));
-  return spawn(command, args, {
+  let cmd = await spawn(command, args, {
     stdio: 'inherit',
     shell: true,
     ...options
+  });
+  return new Promise(resolve => {
+    cmd.on('close', code => {
+      resolve(code);
+    });
   });
 }
 
