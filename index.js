@@ -43,7 +43,6 @@ async function main () {
           break;
         case 'provider':
           await addProviderPrompt(productModel, name, value);
-          // TODO add various provider IaC to setup cloud CI/CD
           break;
         default:
           console.log(colors.red(`'${type}' is not a valid type, try --help for valid commands`));
@@ -87,6 +86,8 @@ async function main () {
       if (providers) {
         providers = utils.list(providers);
       }
+      // TODO lets ping until we know the cloud formation is done
+      // TODO then we need to run post_provision commands
       applications.forEach(async app => {
         for (let provider in app.providers) {
           if (!providers || providers.some(p => p === provider)) {
