@@ -1,4 +1,4 @@
-const colors = require('colors');
+const colors = require('colors/safe');
 const { run } = require('../utils');
 const { BaseProviderModel } = require('./baseProviderModel');
 const { Providers } = require('./providers');
@@ -42,6 +42,7 @@ class AwsModel extends BaseProviderModel {
 
   async runPostProvisionCommands () {
     if (this.provider.commands && this.provider.commands.post_provision) {
+      console.log(colors.gray('Running post provision commands...'));
       return run(this.provider.commands.post_provision.join(' '), [], { cwd: this.application.path });
     }
   }
@@ -100,9 +101,15 @@ class AwsModel extends BaseProviderModel {
 
   async checkStackStatus () {
     let stacks = await this.getStacks();
+    let statusText = '';
     stacks.forEach(stack => {
-      console.log(`${colors.green(stack.StackName)}: ${colors.yellow(stack.StackStatus)}`);
+      if (stack && stack.StackName.indexOf(this.application.name) > -1) {
+        statusText += `${colors.green(stack.StackName)}: ${colors.yellow(stack.StackStatus)}`;
+      }
     });
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(statusText);
     if (stacks.some(stack => stack.StackStatus.indexOf('PROGRESS') > -1)) {
       await new Promise(resolve => {
         setTimeout(() => {
@@ -110,8 +117,10 @@ class AwsModel extends BaseProviderModel {
         }, 1000);
       });
     } else if (stacks.every(stack => stack.StackStatus.indexOf('COMPLETE') > -1)) {
+      console.log(colors.green('\nStack changes complete'));
       return true;
     } else {
+      console.log(colors.green('\nStack changes failed'));
       return false;
     }
   }
