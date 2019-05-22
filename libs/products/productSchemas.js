@@ -14,7 +14,8 @@ let localConifg = {
     install: [], // install commands
     validate: [], // validate commands (i.e. test, lint, etc.)
     build: [], // build commands
-    start: [] // start commands
+    start: [], // start commands
+    deploy: [] // deploy commands
   },
   artifacts: [] // artifact paths
 };

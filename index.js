@@ -2,7 +2,6 @@
 const program = require('commander');
 const process = require('process');
 const fs = require('fs');
-const { exec } = require('child_process');
 const colors = require('colors');
 const utils = require('./libs/utils');
 const { ProductModel } = require('./libs/products/productModel');
@@ -67,7 +66,7 @@ async function main () {
       for (let i = 0; i < applications.length; i++) {
         let app = applications[i];
         if (app.localConfig.commands[cmd] && app.localConfig.commands[cmd].length > 0) {
-          await utils.run(app.localConfig.commands[cmd].join(' '), [], { cwd: app.path });
+          utils.run(app.localConfig.commands[cmd].join(' '), [], { cwd: app.path });
         } else {
           console.log(colors.yellow(`No ${colors.gray(cmd)} command defined for ${colors.gray(app.name)}`));
         }
@@ -106,9 +105,7 @@ async function main () {
     .description('Clones the specified applications to their respective local config paths')
     .action(applications => {
       productModel.product.applications.forEach(async app => {
-        await exec(`git clone ${app.localConfig.repository.url}`, { cwd: program.projectDirectory }, (err, stdout, stderr) => {
-          console.log(colors.gray(stderr));
-        });
+        await utils.run(`git clone ${app.localConfig.repository.url}`);
       });
     });
 
