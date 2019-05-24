@@ -6,10 +6,6 @@ let product = {
 
 let localConifg = {
   path: null,
-  repository: {
-    type: null,
-    url: null
-  },
   commands: {
     install: [], // install commands
     validate: [], // validate commands (i.e. test, lint, etc.)
@@ -23,6 +19,10 @@ let localConifg = {
 let application = {
   name: null,
   version: null,
+  repository: {
+    type: null,
+    url: null
+  },
   localConifg,
   providers: {}
 };

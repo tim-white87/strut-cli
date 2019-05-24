@@ -8,7 +8,9 @@ async function addApplicationPrompt (productModel) {
     type: 'input',
     name: 'path',
     message: 'Please provide the local path to your application:'
-  }, {
+  },
+  // TODO make repo optional
+  {
     type: 'list',
     name: 'repoType',
     choices: ['git', 'svn', 'mercurial']
