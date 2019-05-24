@@ -31,11 +31,18 @@ class AwsModel extends BaseProviderModel {
 
   async init() {
     await super.init();
+    this.stacks = null;
     // TODO await this.runPreProvisonCommands();
-    await this.getStacks();
-    await this.buildStacks();
-    let success = await this.checkStackStatus();
-    if (success) {
+    console.log(colors.gray('Checking current CF stacks status...'));
+    let isIdle = await this.checkStackStatus();
+    if (isIdle) {
+      console.log(colors.gray('Running CF stacks...'));
+      await this.buildStacks();
+    } else {
+      return;
+    }
+    isIdle = await this.checkStackStatus();
+    if (isIdle) {
       await this.runPostProvisionCommands();
     }
   }
@@ -99,28 +106,48 @@ class AwsModel extends BaseProviderModel {
     return res.Stacks;
   }
 
-  async checkStackStatus () {
-    let stacks = await this.getStacks();
-    let statusText = '';
-    stacks.forEach(stack => {
-      if (stack && stack.StackName.indexOf(this.application.name) > -1) {
-        statusText += `${colors.green(stack.StackName)}: ${colors.yellow(stack.StackStatus)}`;
+  async checkStackStatus (isSilent) {
+    let stackRes = await this.getStacks();
+    let stacks = stackRes.filter(stack => stack.StackName.indexOf(this.application.name) > -1);
+
+    if (stacks.every(stack =>
+      stack.StackStatus === StackStatus.CREATE_COMPLETE ||
+      stack.StackStaus === StackStatus.UPDATE_COMPLETE ||
+      stack.StackStatus === StackStatus.ROLLBACK_COMPLETE ||
+      stack.StackStatus === StackStatus.UPDATE_ROLLBACK_COMPLETE)) {
+      if (!isSilent) {
+        console.log(colors.green('Stacks status:'));
+        stacks.forEach(stack => {
+          console.log(`${colors.white(stack.StackName)}: ${colors.green(stack.StackStatus)}`);
+        });
       }
-    });
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.write(statusText);
-    if (stacks.some(stack => stack.StackStatus.indexOf('PROGRESS') > -1)) {
+      return true;
+    } else if (stacks.some(stack => stack.StackStatus.indexOf('PROGRESS') > -1)) {
+      let isUpdated = !this.stacks || !this.stacks.every(stack => stacks.find(s => s.StackName === stack.StackName).StackStatus === stack.StackStatus);
+      if (isUpdated) {
+        this.stacks = stacks;
+        if (!isSilent) {
+          stacks.forEach(stack => {
+            console.log(`${colors.white(stack.StackName)}: ${colors.yellow(stack.StackStatus)}`);
+            if (stack.StackStatusReason) {
+              console.log(colors.gray(stack.StackStatusReason));
+            }
+          });
+        }
+      }
+
       await new Promise(resolve => {
         setTimeout(() => {
-          resolve(this.checkStackStatus());
+          resolve(this.checkStackStatus(isSilent));
         }, 1000);
       });
-    } else if (stacks.every(stack => stack.StackStatus.indexOf('COMPLETE') > -1)) {
-      console.log(colors.green('\nStack changes complete'));
-      return true;
     } else {
-      console.log(colors.green('\nStack changes failed'));
+      if (!isSilent) {
+        console.log(colors.red('Stacks status:'));
+        stacks.forEach(stack => {
+          console.log(`${colors.white(stack.StackName)}: ${colors.red(stack.StackStatus)}`);
+        });
+      }
       return false;
     }
   }
