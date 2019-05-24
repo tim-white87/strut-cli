@@ -1,34 +1,43 @@
 const fs = require('fs');
+const yaml = require('js-yaml');
 const colors = require('colors');
 const productSchemas = require('./productSchemas');
 
 exports.ProductModel = class ProductModel {
+  get fileName () { return 'strut'; }
+
   async init() {
-    this.product = await this.loadProduct();
+    this.product = this.loadStrut();
   }
 
-  async loadProduct () {
-    const productJson = 'strut.json';
-    return new Promise(resolve => {
-      fs.stat(productJson, err => {
-        if (err && err.code === 'ENOENT') {
-          resolve(this.productModel);
-        } else {
-          fs.readFile(productJson, 'utf8', (err, data) => {
-            if (err) throw err;
-            resolve(JSON.parse(data));
-          });
-        }
-      });
-    });
+  loadStrut () {
+    const yamlFile = `${this.fileName}.yml`;
+    const jsonFile = `${this.fileName}.json`;
+    let strutYaml;
+    let strutJson;
+    try {
+      strutYaml = yaml.safeLoad(fs.readFileSync(yamlFile, 'utf8'));
+    } catch (e) {}
+    if (strutYaml) {
+      this.isYaml = true;
+      return strutYaml;
+    }
+    try {
+      strutJson = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
+    } catch (e) {}
+    if (strutJson) {
+      this.isYaml = false;
+      return strutJson;
+    } else {
+      return this.productModel;
+    }
   }
 
   updateProductFile (data) {
-    const productJsonPath = 'strut.json';
     return new Promise((resolve, reject) => {
       fs.writeFile(
-        productJsonPath,
-        JSON.stringify(data || this.product, null, 2),
+        `${this.fileName}.${this.isYaml ? 'yml' : 'json'}`,
+        this.isYaml ? yaml.safeDump(data || this.product) : JSON.stringify(data || this.product, null, 2),
         (err) => {
           if (err) {
             reject(err);
