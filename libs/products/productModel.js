@@ -48,8 +48,9 @@ exports.ProductModel = class ProductModel {
     });
   }
 
-  async create (name) {
+  async create (name, isYaml) {
     this.name = name || process.cwd().split('/').pop();
+    this.isYaml = isYaml;
     console.log(colors.yellow(`Creating product: ${colors.gray(this.name)}`));
     let dir = `./`;
     if (!fs.existsSync(dir)) {
@@ -70,15 +71,4 @@ exports.ProductModel = class ProductModel {
       console.log(colors.red('A name with this application already exists.'));
     }
   }
-
-  // async updateApplication (application) {
-  //   console.log(colors.yellow(`Updating ${colors.gray(application.name)}: ${colors.gray(application.name)}`));
-  //   let existingApplication = this.product.applications.find(a => a.name === application.name);
-  //   if (existingApplication) {
-  //     existingApplication = { ...existingApplication, ...application };
-  //     await this.updateProductFile();
-  //   } else {
-  //     console.log(colors.red('No application with this name exists'));
-  //   }
-  // }
 };

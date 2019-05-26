@@ -1,5 +1,6 @@
 const { spawn } = require('child_process');
 const colors = require('colors');
+const yaml = require('js-yaml');
 const fs = require('fs');
 
 async function run (command, args = [], options) {
@@ -29,10 +30,11 @@ function readFile (path) {
       if (err && err.code === 'ENOENT') {
         reject(err);
       } else {
+        let isYaml = path.split('.').pop();
         fs.readFile(path, 'utf8', (err, data) => {
           if (err) throw err;
           try {
-            resolve(JSON.parse(data));
+            resolve(isYaml ? yaml.safeLoad(data) : JSON.parse(data));
           } catch (e) {
             console.log(e);
           }
