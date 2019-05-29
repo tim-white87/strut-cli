@@ -65,7 +65,7 @@ class AwsModel extends BaseProviderModel {
           cloudformation.updateStack({
             StackName,
             Capabilities: ['CAPABILITY_NAMED_IAM'],
-            TemplateBody: JSON.stringify(resource.fileData)
+            TemplateBody: resource.fileData
           }, (err, data) => {
             if (err) {
               console.log(err);
@@ -77,7 +77,7 @@ class AwsModel extends BaseProviderModel {
           cloudformation.createStack({
             StackName,
             Capabilities: ['CAPABILITY_NAMED_IAM'],
-            TemplateBody: JSON.stringify(resource.fileData)
+            TemplateBody: resource.fileData
           }, (err, data) => {
             if (err) {
               console.log(err);
