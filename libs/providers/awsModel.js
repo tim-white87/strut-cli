@@ -29,8 +29,11 @@ const StackStatus = {
 class AwsModel extends BaseProviderModel {
   get providerName () { return Providers.AWS; }
 
-  async init() {
+  async init () {
     await super.init();
+  }
+
+  async provision() {
     this.stacks = null;
     // TODO await this.runPreProvisonCommands();
     console.log(colors.gray('Checking current CF stacks status...'));

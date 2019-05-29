@@ -75,7 +75,7 @@ async function main () {
   program
     .command('provision [applications] [providers]')
     .description('Provisions the defined infrastructure for the applications to the specified provider. Defaults to all applications deployed to all providers')
-    .action((applications, providers) => {
+    .action(async (applications, providers) => {
       if (applications) {
         applications = utils.list(applications).map(a => {
           return productModel.product.applications.find(app => app.name === a);
@@ -86,19 +86,19 @@ async function main () {
       if (providers) {
         providers = utils.list(providers);
       }
-      // TODO lets ping until we know the cloud formation is done
-      // TODO then we need to run post_provision commands
-      applications.forEach(async app => {
+      for (let i = 0; i < applications.length; i++) {
+        let app = applications[i];
         for (let provider in app.providers) {
           if (!providers || providers.some(p => p === provider)) {
             if (app.providers[provider] && (app.providers[provider].commands || (app.providers[provider].infrastructure && app.providers[provider].infrastructure.length > 0))) {
               let Model = ProvidersMap.get(provider);
               let model = new Model(app);
               await model.init();
+              await model.provision();
             }
           }
         }
-      });
+      }
     });
 
   program
@@ -106,7 +106,7 @@ async function main () {
     .description('Clones the specified applications to their respective local config paths')
     .action(applications => {
       productModel.product.applications.forEach(async app => {
-        await utils.run(`git clone ${app.localConfig.repository.url}`);
+        await utils.run(`git clone ${app.repository.url}`);
       });
     });
 
