@@ -5,7 +5,7 @@ const fs = require('fs');
 const colors = require('colors');
 const utils = require('./libs/utils');
 const { ProductModel } = require('./libs/products/productModel');
-const { ProvidersMap } = require('./libs/providers/providersMap');
+const { onProviderCommand } = require('./libs/providers/providers');
 const createPrompt = require('./libs/prompts/createPrompt');
 const addApplicationPrompt = require('./libs/prompts/addApplicationPrompt');
 const addProviderPrompt = require('./libs/prompts/addProviderPrompt');
@@ -76,29 +76,14 @@ async function main () {
     .command('provision [applications] [providers]')
     .description('Provisions the defined infrastructure for the applications to the specified provider. Defaults to all applications deployed to all providers')
     .action(async (applications, providers) => {
-      if (applications) {
-        applications = utils.list(applications).map(a => {
-          return productModel.product.applications.find(app => app.name === a);
-        });
-      } else {
-        applications = productModel.product.applications;
-      }
-      if (providers) {
-        providers = utils.list(providers);
-      }
-      for (let i = 0; i < applications.length; i++) {
-        let app = applications[i];
-        for (let provider in app.providers) {
-          if (!providers || providers.some(p => p === provider)) {
-            if (app.providers[provider] && (app.providers[provider].commands || (app.providers[provider].infrastructure && app.providers[provider].infrastructure.length > 0))) {
-              let Model = ProvidersMap.get(provider);
-              let model = new Model(app);
-              await model.init();
-              await model.provision();
-            }
-          }
-        }
-      }
+      await onProviderCommand(productModel, 'provision', applications, providers);
+    });
+
+  program
+    .command('destroy [applications] [providers]')
+    .description('Destroys the defined infrastructure for the applications to the specified provider. Defaults to all applications destroyed for all providers. Careful with this one dude, it will kill your shit.')
+    .action(async (applications, providers) => {
+      await onProviderCommand(productModel, 'destroy', applications, providers);
     });
 
   program

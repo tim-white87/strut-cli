@@ -1,7 +1,6 @@
 const colors = require('colors/safe');
 const { run } = require('../utils');
 const { BaseProviderModel } = require('./baseProviderModel');
-const { Providers } = require('./providers');
 process.env.AWS_SDK_LOAD_CONFIG = true;
 const CloudFormation = require('aws-sdk/clients/cloudformation');
 const cloudformation = new CloudFormation();
@@ -27,7 +26,7 @@ const StackStatus = {
 };
 
 class AwsModel extends BaseProviderModel {
-  get providerName () { return Providers.AWS; }
+  get providerName () { return 'AWS'; } // TODO why can't i use Providers?
 
   async init () {
     await super.init();
@@ -47,6 +46,14 @@ class AwsModel extends BaseProviderModel {
     isIdle = await this.checkStackStatus();
     if (isIdle) {
       await this.runPostProvisionCommands();
+    }
+  }
+
+  async destroy() {
+    console.log(colors.gray('Checking current CF stacks status...'));
+    let isIdle = await this.checkStackStatus();
+    if (isIdle) {
+      await this.destroyStacks();
     }
   }
 
@@ -93,6 +100,10 @@ class AwsModel extends BaseProviderModel {
     });
 
     await Promise.all(buildStackRequests);
+  }
+
+  async destroyStacks() {
+    console.log(colors.red('DESTROYING STACKS!'));
   }
 
   async getStacks () {
