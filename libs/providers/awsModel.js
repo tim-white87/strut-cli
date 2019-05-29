@@ -112,7 +112,7 @@ class AwsModel extends BaseProviderModel {
 
     if (stacks.every(stack =>
       stack.StackStatus === StackStatus.CREATE_COMPLETE ||
-      stack.StackStaus === StackStatus.UPDATE_COMPLETE ||
+      stack.StackStatus === StackStatus.UPDATE_COMPLETE ||
       stack.StackStatus === StackStatus.ROLLBACK_COMPLETE ||
       stack.StackStatus === StackStatus.UPDATE_ROLLBACK_COMPLETE)) {
       if (!isSilent) {
