@@ -51,10 +51,7 @@ class AwsModel extends BaseProviderModel {
     } else {
       return;
     }
-    isIdle = await this.checkStackStatus();
-    if (isIdle) {
-      await this.runPostProvisionCommands();
-    }
+    await this.runPostProvisionCommands();
   }
 
   async destroy() {
@@ -78,15 +75,16 @@ class AwsModel extends BaseProviderModel {
    *  https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html
    */
   async buildStacks () {
-    let buildStackRequests = this.infrastructureData.map((resource, i) => {
+    let buildStackRequests = this.infrastructureData.map((stack, i) => {
       return new Promise(resolve => {
-        let StackName = `${this.application.name}-${resource.name || i}-stack`;
+        let StackName = stack.name || `${this.application.name}-${i + 1}-stack`;
+        const params = {
+          StackName,
+          Capabilities: ['CAPABILITY_NAMED_IAM'],
+          TemplateBody: stack.fileData
+        };
         if (this.existingStacks.some(es => es.StackName === StackName)) {
-          cloudformation.updateStack({
-            StackName,
-            Capabilities: ['CAPABILITY_NAMED_IAM'],
-            TemplateBody: resource.fileData
-          }, (err, data) => {
+          cloudformation.updateStack(params, (err, data) => {
             if (err) {
               console.log(err);
             } else {
@@ -94,11 +92,7 @@ class AwsModel extends BaseProviderModel {
             }
           });
         } else {
-          cloudformation.createStack({
-            StackName,
-            Capabilities: ['CAPABILITY_NAMED_IAM'],
-            TemplateBody: resource.fileData
-          }, (err, data) => {
+          cloudformation.createStack(params, (err, data) => {
             if (err) {
               console.log(err);
             } else {
@@ -108,8 +102,16 @@ class AwsModel extends BaseProviderModel {
         }
       });
     });
-
-    return Promise.all(buildStackRequests);
+    // let stacks;
+    // if (this.application.parallel) {
+    //   stacks = await Promise.all(buildStackRequests);
+    //   return this.checkStackStatus();
+    // }
+    for (let i = 0; i < buildStackRequests.length; i++) {
+      let stackRequest = buildStackRequests[i];
+      await stackRequest;
+      await this.checkStackStatus();
+    }
   }
 
   async destroyStacks(stacks) {
