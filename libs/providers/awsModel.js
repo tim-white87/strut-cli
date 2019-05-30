@@ -45,9 +45,16 @@ class AwsModel extends BaseProviderModel {
     // TODO await this.runPreProvisonCommands();
     console.log(colors.gray('Checking current CF stacks status...'));
     let isIdle = await this.checkStackStatus();
+    if (this.rollbackCompleteStacks) {
+      await this.removeRollbackCompleteStacks();
+    }
     if (isIdle) {
       console.log(colors.gray('Running CF stacks...'));
-      await this.buildStacks();
+      try {
+        await this.buildStacks();
+      } catch (e) {
+        return;
+      }
     } else {
       return;
     }
@@ -58,9 +65,9 @@ class AwsModel extends BaseProviderModel {
     let stacks = await this.getStacks();
     if (stacks.length === 0) { return; }
     console.log(colors.red('DESTROYING STACKS!'));
-    let stackResources = await this.getStackResources(stacks);
-    await this.dumpBuckets(stackResources);
-    await this.destroyStacks(stacks);
+    let stacksResources = await this.getStacksResources(stacks);
+    await this.dumpBuckets(stacksResources);
+    await this.deleteStacks(stacks);
     await this.checkStackStatus();
   }
 
@@ -76,7 +83,7 @@ class AwsModel extends BaseProviderModel {
    */
   async buildStacks () {
     let buildStackRequests = this.infrastructureData.map((stack, i) => {
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         let StackName = stack.name || `${this.application.name}-${i + 1}-stack`;
         const params = {
           StackName,
@@ -86,7 +93,9 @@ class AwsModel extends BaseProviderModel {
         if (this.existingStacks.some(es => es.StackName === StackName)) {
           cloudformation.updateStack(params, (err, data) => {
             if (err) {
-              console.log(err);
+              console.log(colors.red(`UPDATE ERROR: ${colors.white(StackName)}`));
+              console.log(colors.gray('Message: '), colors.yellow(err.message));
+              reject(err);
             } else {
               resolve(data);
             }
@@ -94,7 +103,8 @@ class AwsModel extends BaseProviderModel {
         } else {
           cloudformation.createStack(params, (err, data) => {
             if (err) {
-              console.log(err);
+              console.log(colors.red(`CREATE ERROR: ${colors.white(StackName)}`));
+              console.log(colors.gray('Message: '), colors.yellow(err.message));
             } else {
               resolve(data);
             }
@@ -114,8 +124,8 @@ class AwsModel extends BaseProviderModel {
     }
   }
 
-  async destroyStacks(stacks) {
-    const destroyStackRequests = stacks.map(stack => {
+  async deleteStacks(stacks) {
+    const reqs = stacks.map(stack => {
       return new Promise(resolve => {
         cloudformation.deleteStack({
           StackName: stack.StackName
@@ -128,7 +138,7 @@ class AwsModel extends BaseProviderModel {
         });
       });
     });
-    await Promise.all(destroyStackRequests);
+    await Promise.all(reqs);
   }
 
   async getStacks () {
@@ -145,7 +155,7 @@ class AwsModel extends BaseProviderModel {
     return res.Stacks.filter(stack => stack.StackName.indexOf(this.application.name) > -1);
   }
 
-  async getStackResources (stacks) {
+  async getStacksResources (stacks) {
     const reqs = stacks.map(stack => {
       return new Promise(resolve => {
         cloudformation.describeStackResources({
@@ -160,57 +170,81 @@ class AwsModel extends BaseProviderModel {
       });
     });
     let res = await Promise.all(reqs);
-    return res[0].StackResources;
+    return res.map(s => s.StackResources);
   }
 
-  async dumpBuckets (stackResources) {
-    let buckets = stackResources.filter(resource => resource.ResourceType === ResourceTypes.S3);
-    if (buckets.length === 0) {
-      return;
-    }
-    let reqs = buckets.map(async bucket => {
-      let objectsRes = await new Promise(resolve => {
-        s3.listObjectsV2({ Bucket: bucket.PhysicalResourceId }, (err, data) => {
-          if (err) {
-            console.log(err);
-          } else {
-            resolve(data);
-          }
-        });
-      });
-      if (objectsRes.Contents.length === 0) {
-        return;
+  async getStackEvents(stack, nextToken) {
+    return new Promise(resolve => {
+      let params = {
+        StackName: stack.StackName
+      };
+      if (nextToken) {
+        params.NextToken = nextToken;
       }
-
-      console.log(colors.red(`WARNING: You have stuff in your S3 bucket: ${colors.gray(bucket.PhysicalResourceId)}`));
-      console.log(colors.yellow('Deleting your S3 Resources will fail if these items are not removed, however strut strongly recommendeds you back these up.'));
-      let really = await inquirer.prompt([{
-        type: 'confirm',
-        message: 'Should strut empty your buckets?',
-        name: 'deleteObjects',
-        default: false
-      }]);
-      if (!really.deleteObjects) {
-        return;
-      }
-
-      return new Promise(resolve => {
-        s3.deleteObjects({
-          Bucket: bucket.PhysicalResourceId,
-          Delete: {
-            Objects: objectsRes.Contents.map(o => {
-              return { Key: o.Key };
-            })
-          }
-        }, (err, data) => {
-          if (err) {
-            console.log(err);
-          } else {
-            resolve(data);
-          }
-        });
+      cloudformation.describeStackEvents(params, (err, data) => {
+        if (err) {
+          console.log(err);
+        } else {
+          resolve(data);
+        }
       });
     });
+  }
+
+  async dumpBuckets (stacksResources) {
+    let reqs = [];
+    for (let i = 0; i < stacksResources.length; i++) {
+      let stackResources = stacksResources[i];
+      let buckets = stackResources.filter(resource => resource.ResourceType === ResourceTypes.S3);
+      if (buckets.length === 0) {
+        return;
+      }
+      let bucketReqs = buckets.map(async bucket => {
+        let objectsRes = await new Promise(resolve => {
+          s3.listObjectsV2({ Bucket: bucket.PhysicalResourceId }, (err, data) => {
+            if (err) {
+              console.log(err);
+            } else {
+              resolve(data);
+            }
+          });
+        });
+        if (objectsRes.Contents.length === 0) {
+          return;
+        }
+
+        console.log(colors.red(`WARNING: You have stuff in your S3 bucket: ${colors.gray(bucket.PhysicalResourceId)}`));
+        console.log(colors.yellow('Deleting your S3 Resources will fail if these items are not removed, however strut strongly recommendeds you back these up.'));
+        let really = await inquirer.prompt([{
+          type: 'confirm',
+          message: 'Should strut empty your buckets?',
+          name: 'deleteObjects',
+          default: false
+        }]);
+        if (!really.deleteObjects) {
+          return;
+        }
+
+        return new Promise(resolve => {
+          s3.deleteObjects({
+            Bucket: bucket.PhysicalResourceId,
+            Delete: {
+              Objects: objectsRes.Contents.map(o => {
+                return { Key: o.Key };
+              })
+            }
+          }, (err, data) => {
+            if (err) {
+              console.log(err);
+            } else {
+              resolve(data);
+            }
+          });
+        });
+      });
+      reqs = reqs.concat(bucketReqs);
+    }
+
     return Promise.all(reqs);
   }
 
@@ -220,7 +254,6 @@ class AwsModel extends BaseProviderModel {
     if (stacks.every(stack =>
       stack.StackStatus === StackStatus.CREATE_COMPLETE ||
       stack.StackStatus === StackStatus.UPDATE_COMPLETE ||
-      stack.StackStatus === StackStatus.ROLLBACK_COMPLETE ||
       stack.StackStatus === StackStatus.UPDATE_ROLLBACK_COMPLETE ||
       stack.StackStatus === StackStatus.DELETE_COMPLETE)) {
       if (!isSilent) {
@@ -255,8 +288,36 @@ class AwsModel extends BaseProviderModel {
         stacks.forEach(stack => {
           console.log(`${colors.white(stack.StackName)}: ${colors.red(stack.StackStatus)}`);
         });
+        this.rollbackCompleteStacks = stacks.filter(stack => stack.StackStatus === StackStatus.ROLLBACK_COMPLETE);
       }
       return false;
+    }
+  }
+
+  async removeRollbackCompleteStacks () {
+    console.log(colors.yellow(`It looks like some stacks are in ${colors.red(StackStatus.ROLLBACK_COMPLETE)} state and can not be updated.`));
+    console.log(colors.yellow('You need to delete these in order to update them.'));
+    console.log(colors.gray('Stacks: '), this.rollbackCompleteStacks.map(stack => stack.StackName).join(', '));
+    for (let i = 0; i < this.rollbackCompleteStacks.length; i++) {
+      let stack = this.rollbackCompleteStacks[i];
+      let stackEventsRes = await this.getStackEvents(stack);
+      stackEventsRes.StackEvents.filter(event => event.ResourceStatus === StackStatus.CREATE_FAILED)
+        .forEach(event => {
+          console.log(`${colors.gray(event.Timestamp)}: ${colors.green(event.LogicalResourceId)}`);
+          console.log(`${colors.red(event.ResourceStatus)}: ${colors.yellow(event.ResourceStatusReason)}`);
+        });
+      // TODO call this again recursivley if stackEventsRes.NextToken
+    }
+    const really = await inquirer.prompt([{
+      type: 'confirm',
+      message: 'Would you like strut to remove these stacks?',
+      default: false,
+      name: 'deleteStacks'
+    }]);
+    if (really.deleteStacks) {
+      await this.deleteStacks(this.rollbackCompleteStacks);
+      this.rollbackCompleteStacks = null;
+      return this.checkStackStatus();
     }
   }
 };
