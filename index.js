@@ -64,10 +64,11 @@ async function main () {
       }
       for (let i = 0; i < applications.length; i++) {
         let app = applications[i];
-        if (app.localConfig.commands[cmd] && app.localConfig.commands[cmd].length > 0) {
+        if (app.localConfig && app.localConfig.commands &&
+        app.localConfig.commands[cmd] && app.localConfig.commands[cmd].length > 0) {
           utils.run(app.localConfig.commands[cmd].join(' '), [], { cwd: app.path });
         } else {
-          console.log(colors.yellow(`No ${colors.gray(cmd)} command defined for ${colors.gray(app.name)}`));
+          console.log(colors.yellow(`No local ${colors.gray(cmd)} command defined for ${colors.gray(app.name)}`));
         }
       };
     });
