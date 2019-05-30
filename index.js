@@ -22,7 +22,14 @@ async function main () {
 
   await productModel.init();
 
-  program.version(require('./package.json').version);
+  program
+    .version(require('./package.json').version)
+    .option('-c, --cloudformationParams <params>', 'Params to pass to Cloudformation in Key:Value format separated by commas', (val) => {
+      if (val.indexOf(',') > -1) {
+        return val.split(',');
+      }
+      return [val];
+    });
 
   program
     .command('create [name]')
@@ -79,14 +86,14 @@ async function main () {
     .command('provision [applications] [providers]')
     .description('Provisions the defined infrastructure for the applications to the specified provider. Defaults to all applications deployed to all providers')
     .action(async (applications, providers) => {
-      await onProviderCommand(productModel, 'provision', applications, providers);
+      await onProviderCommand(productModel, 'provision', applications, providers, program.cloudformationParams);
     });
 
   program
     .command('destroy [applications] [providers]')
     .description('Destroys the defined infrastructure for the applications to the specified provider. Defaults to all applications destroyed for all providers. Careful with this one dude, it will kill your shit.')
     .action(async (applications, providers) => {
-      await onProviderCommand(productModel, 'destroy', applications, providers);
+      await onProviderCommand(productModel, 'destroy', applications, providers, program.cloudformationParams);
     });
 
   program

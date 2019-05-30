@@ -6,8 +6,9 @@ class BaseProviderModel {
   get provider () { return this.application.providers[this.providerName]; }
   get infrastructure () { return this.provider.infrastructure; }
 
-  constructor(application) {
+  constructor(application, rawParams) {
     this.application = application;
+    this.params = this.parseRawParams(rawParams);
   }
 
   async init() {
@@ -18,6 +19,16 @@ class BaseProviderModel {
     this.infrastructureData = this.infrastructure.map((resource, i) => {
       return { ...resource, fileData: infrastructureFiles[i] };
     });
+  }
+
+  parseRawParams(rawParams) {
+    if (rawParams) {
+      return rawParams.map(param => {
+        let key = param.split(':')[0];
+        let value = param.split(':').pop();
+        return { ParameterKey: key, ParameterValue: value };
+      });
+    }
   }
 }
 

@@ -52,12 +52,14 @@ class AwsModel extends BaseProviderModel {
       console.log(colors.gray('Running CF stacks...'));
       try {
         await this.buildStacks();
+        // TODO add Route53 record set if stacks contained CertificateManager
       } catch (e) {
         return;
       }
     } else {
       return;
     }
+    await this.checkStackStatus();
     await this.runPostProvisionCommands();
   }
 
@@ -88,7 +90,8 @@ class AwsModel extends BaseProviderModel {
         const params = {
           StackName,
           Capabilities: ['CAPABILITY_NAMED_IAM'],
-          TemplateBody: stack.fileData
+          TemplateBody: stack.fileData,
+          Parameters: this.params
         };
         if (this.existingStacks.some(es => es.StackName === StackName)) {
           cloudformation.updateStack(params, (err, data) => {
@@ -112,11 +115,6 @@ class AwsModel extends BaseProviderModel {
         }
       });
     });
-    // let stacks;
-    // if (this.application.parallel) {
-    //   stacks = await Promise.all(buildStackRequests);
-    //   return this.checkStackStatus();
-    // }
     for (let i = 0; i < buildStackRequests.length; i++) {
       let stackRequest = buildStackRequests[i];
       await stackRequest;

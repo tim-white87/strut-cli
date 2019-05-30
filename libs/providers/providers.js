@@ -11,7 +11,7 @@ const ProvidersMap = new Map([
   [Providers.GCP, null]
 ]);
 
-async function onProviderCommand (productModel, command, applications, providers) {
+async function onProviderCommand (productModel, command, applications, providers, params) {
   if (applications) {
     applications = utils.list(applications).map(a => {
       return productModel.product.applications.find(app => app.name === a);
@@ -28,7 +28,7 @@ async function onProviderCommand (productModel, command, applications, providers
       if (!providers || providers.some(p => p === provider)) {
         if (app.providers[provider] && (app.providers[provider].commands || (app.providers[provider].infrastructure && app.providers[provider].infrastructure.length > 0))) {
           let Model = ProvidersMap.get(provider);
-          let model = new Model(app);
+          let model = new Model(app, params);
           await model.init();
           await model[command]();
         }
