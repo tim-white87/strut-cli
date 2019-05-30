@@ -1,9 +1,12 @@
 const colors = require('colors/safe');
+const inquirer = require('inquirer');
 const { run } = require('../utils');
 const { BaseProviderModel } = require('./baseProviderModel');
 process.env.AWS_SDK_LOAD_CONFIG = true;
 const CloudFormation = require('aws-sdk/clients/cloudformation');
 const cloudformation = new CloudFormation();
+const S3 = require('aws-sdk/clients/s3');
+const s3 = new S3();
 
 const StackStatus = {
   CREATE_IN_PROGRESS: 'CREATE_IN_PROGRESS',
@@ -23,6 +26,11 @@ const StackStatus = {
   UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS: 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS',
   UPDATE_ROLLBACK_COMPLETE: 'UPDATE_ROLLBACK_COMPLETE',
   REVIEW_IN_PROGRESS: 'REVIEW_IN_PROGRESS'
+};
+
+const ResourceTypes = {
+  CLOUDFRONT: 'AWS::CloudFront::Distribution',
+  S3: 'AWS::S3::Bucket'
 };
 
 class AwsModel extends BaseProviderModel {
@@ -50,11 +58,13 @@ class AwsModel extends BaseProviderModel {
   }
 
   async destroy() {
-    console.log(colors.gray('Checking current CF stacks status...'));
-    let isIdle = await this.checkStackStatus();
-    if (isIdle) {
-      await this.destroyStacks();
-    }
+    let stacks = await this.getStacks();
+    if (stacks.length === 0) { return; }
+    console.log(colors.red('DESTROYING STACKS!'));
+    let stackResources = await this.getStackResources(stacks);
+    await this.dumpBuckets(stackResources);
+    await this.destroyStacks(stacks);
+    await this.checkStackStatus();
   }
 
   async runPostProvisionCommands () {
@@ -99,11 +109,24 @@ class AwsModel extends BaseProviderModel {
       });
     });
 
-    await Promise.all(buildStackRequests);
+    return Promise.all(buildStackRequests);
   }
 
-  async destroyStacks() {
-    console.log(colors.red('DESTROYING STACKS!'));
+  async destroyStacks(stacks) {
+    const destroyStackRequests = stacks.map(stack => {
+      return new Promise(resolve => {
+        cloudformation.deleteStack({
+          StackName: stack.StackName
+        }, (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+    });
+    await Promise.all(destroyStackRequests);
   }
 
   async getStacks () {
@@ -117,18 +140,87 @@ class AwsModel extends BaseProviderModel {
       });
     });
     this.existingStacks = res.Stacks;
-    return res.Stacks;
+    return res.Stacks.filter(stack => stack.StackName.indexOf(this.application.name) > -1);
+  }
+
+  async getStackResources (stacks) {
+    const reqs = stacks.map(stack => {
+      return new Promise(resolve => {
+        cloudformation.describeStackResources({
+          StackName: stack.StackName
+        }, (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+    });
+    let res = await Promise.all(reqs);
+    return res[0].StackResources;
+  }
+
+  async dumpBuckets (stackResources) {
+    let buckets = stackResources.filter(resource => resource.ResourceType === ResourceTypes.S3);
+    if (buckets.length === 0) {
+      return;
+    }
+    let reqs = buckets.map(async bucket => {
+      let objectsRes = await new Promise(resolve => {
+        s3.listObjectsV2({ Bucket: bucket.PhysicalResourceId }, (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+      if (objectsRes.Contents.length === 0) {
+        return;
+      }
+
+      console.log(colors.red(`WARNING: You have stuff in your S3 bucket: ${colors.gray(bucket.PhysicalResourceId)}`));
+      console.log(colors.yellow('Deleting your S3 Resources will fail if these items are not removed, however strut strongly recommendeds you back these up.'));
+      let really = await inquirer.prompt([{
+        type: 'confirm',
+        message: 'Should strut empty your buckets?',
+        name: 'deleteObjects',
+        default: false
+      }]);
+      if (!really.deleteObjects) {
+        return;
+      }
+
+      return new Promise(resolve => {
+        s3.deleteObjects({
+          Bucket: bucket.PhysicalResourceId,
+          Delete: {
+            Objects: objectsRes.Contents.map(o => {
+              return { Key: o.Key };
+            })
+          }
+        }, (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+    });
+    return Promise.all(reqs);
   }
 
   async checkStackStatus (isSilent) {
-    let stackRes = await this.getStacks();
-    let stacks = stackRes.filter(stack => stack.StackName.indexOf(this.application.name) > -1);
+    let stacks = await this.getStacks();
 
     if (stacks.every(stack =>
       stack.StackStatus === StackStatus.CREATE_COMPLETE ||
       stack.StackStatus === StackStatus.UPDATE_COMPLETE ||
       stack.StackStatus === StackStatus.ROLLBACK_COMPLETE ||
-      stack.StackStatus === StackStatus.UPDATE_ROLLBACK_COMPLETE)) {
+      stack.StackStatus === StackStatus.UPDATE_ROLLBACK_COMPLETE ||
+      stack.StackStatus === StackStatus.DELETE_COMPLETE)) {
       if (!isSilent) {
         console.log(colors.green('Stacks status:'));
         stacks.forEach(stack => {
