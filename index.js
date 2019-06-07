@@ -74,7 +74,7 @@ async function main () {
         if (app.localConfig && app.localConfig.commands &&
         app.localConfig.commands[cmd] && app.localConfig.commands[cmd].length > 0) {
           for (let j = 0; j < app.localConfig.commands[cmd].length; j++) {
-            await utils.run(app.localConfig.commands[cmd][j], [], { cwd: app.path });
+            utils.run(app.localConfig.commands[cmd][j], [], { cwd: app.path });
           }
         } else {
           console.log(colors.yellow(`No local ${colors.gray(cmd)} command defined for ${colors.gray(app.name)}`));

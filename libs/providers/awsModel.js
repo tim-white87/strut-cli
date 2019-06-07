@@ -42,11 +42,12 @@ class AwsModel extends BaseProviderModel {
 
   async provision() {
     this.stacks = null;
-    // TODO await this.runPreProvisonCommands();
+    await this.runCommands('pre_provision');
     console.log(colors.gray('Checking current CF stacks status...'));
     let isIdle = await this.checkStackStatus();
     if (this.rollbackCompleteStacks) {
       await this.removeRollbackCompleteStacks();
+      isIdle = await this.checkStackStatus();
     }
     if (isIdle) {
       console.log(colors.gray('Running CF stacks...'));
@@ -60,7 +61,7 @@ class AwsModel extends BaseProviderModel {
       return;
     }
     await this.checkStackStatus();
-    await this.runPostProvisionCommands();
+    await this.runCommands('post_provision');
   }
 
   async destroy() {
@@ -73,10 +74,10 @@ class AwsModel extends BaseProviderModel {
     await this.checkStackStatus();
   }
 
-  async runPostProvisionCommands () {
-    if (this.provider.commands && this.provider.commands.post_provision) {
-      console.log(colors.gray('Running post provision commands...'));
-      return run(this.provider.commands.post_provision.join(' '), [], { cwd: this.application.path });
+  async runCommands (type) {
+    if (this.provider.commands && this.provider.commands[type]) {
+      console.log(colors.gray(`Running ${colors.green(type)} commands...`));
+      return run(this.provider.commands[type].join(' '), [], { cwd: this.application.path });
     }
   }
 
