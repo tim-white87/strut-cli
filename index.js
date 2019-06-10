@@ -93,6 +93,7 @@ async function main () {
     .command('destroy [applications] [providers]')
     .description('Destroys the defined infrastructure for the applications to the specified provider. Defaults to all applications destroyed for all providers. Careful with this one dude, it will kill your shit.')
     .action(async (applications, providers) => {
+      productModel.product.applications.reverse();
       await onProviderCommand(productModel, 'destroy', applications, providers, program.cloudformationParams);
     });
 

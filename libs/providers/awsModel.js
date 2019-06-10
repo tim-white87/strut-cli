@@ -23,6 +23,7 @@ const StackStatus = {
   UPDATE_COMPLETE: 'UPDATE_COMPLETE',
   UPDATE_ROLLBACK_IN_PROGRESS: 'UPDATE_ROLLBACK_IN_PROGRESS',
   UPDATE_ROLLBACK_FAILED: 'UPDATE_ROLLBACK_FAILED',
+  UPDATE_FAILED: 'UPDATE_FAILED',
   UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS: 'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS',
   UPDATE_ROLLBACK_COMPLETE: 'UPDATE_ROLLBACK_COMPLETE',
   REVIEW_IN_PROGRESS: 'REVIEW_IN_PROGRESS'
@@ -66,6 +67,7 @@ class AwsModel extends BaseProviderModel {
 
   async destroy() {
     let stacks = await this.getStacks();
+    stacks.reverse();
     if (stacks.length === 0) { return; }
     console.log(colors.red('DESTROYING STACKS!'));
     let stacksResources = await this.getStacksResources(stacks);
@@ -99,7 +101,7 @@ class AwsModel extends BaseProviderModel {
             if (err) {
               console.log(colors.red(`UPDATE ERROR: ${colors.white(StackName)}`));
               console.log(colors.gray('Message: '), colors.yellow(err.message));
-              reject(err);
+              // reject(err);
             } else {
               resolve(data);
             }
@@ -150,8 +152,8 @@ class AwsModel extends BaseProviderModel {
         }
       });
     });
-    this.existingStacks = res.Stacks;
-    return res.Stacks.filter(stack => stack.StackName.indexOf(this.application.name) > -1);
+    this.existingStacks = res.Stacks.filter(stack => this.infrastructureData.some(s => s.name === stack.StackName));
+    return this.existingStacks;
   }
 
   async getStacksResources (stacks) {
@@ -188,6 +190,17 @@ class AwsModel extends BaseProviderModel {
         }
       });
     });
+  }
+
+  async logStackEvents(stack, nextToken, statusFilter) {
+    let stackEventsRes = await this.getStackEvents(stack, nextToken);
+    let events = statusFilter ? stackEventsRes.StackEvents
+      .filter(event => event.ResourceStatus === statusFilter) : stackEventsRes.StackEvents;
+    events
+      .forEach(event => {
+        console.log(`${colors.gray(event.Timestamp)}: ${colors.green(event.LogicalResourceId)}`);
+        console.log(`${colors.red(event.ResourceStatus)}: ${colors.yellow(event.ResourceStatusReason)}`);
+      });
   }
 
   async dumpBuckets (stacksResources) {
@@ -257,12 +270,13 @@ class AwsModel extends BaseProviderModel {
       stack.StackStatus === StackStatus.DELETE_COMPLETE)) {
       if (!isSilent) {
         console.log(colors.green('Stacks status:'));
-        stacks.forEach(stack => {
+        for (let i = 0; i < stacks.length; i++) {
+          let stack = stacks[i];
           console.log(`${colors.white(stack.StackName)}: ${colors.green(stack.StackStatus)}`);
-        });
+        }
       }
       return true;
-    } else if (stacks.some(stack => stack.StackStatus.indexOf('PROGRESS') > -1)) {
+    } else if (stacks && stacks.some(stack => stack.StackStatus.indexOf('PROGRESS') > -1)) {
       let isUpdated = !this.stacks || !this.stacks.every(stack => stacks.find(s => s.StackName === stack.StackName).StackStatus === stack.StackStatus);
       if (isUpdated) {
         this.stacks = stacks;
@@ -299,12 +313,7 @@ class AwsModel extends BaseProviderModel {
     console.log(colors.gray('Stacks: '), this.rollbackCompleteStacks.map(stack => stack.StackName).join(', '));
     for (let i = 0; i < this.rollbackCompleteStacks.length; i++) {
       let stack = this.rollbackCompleteStacks[i];
-      let stackEventsRes = await this.getStackEvents(stack);
-      stackEventsRes.StackEvents.filter(event => event.ResourceStatus === StackStatus.CREATE_FAILED)
-        .forEach(event => {
-          console.log(`${colors.gray(event.Timestamp)}: ${colors.green(event.LogicalResourceId)}`);
-          console.log(`${colors.red(event.ResourceStatus)}: ${colors.yellow(event.ResourceStatusReason)}`);
-        });
+      await this.logStackEvents(stack, null, StackStatus.CREATE_FAILED);
       // TODO call this again recursivley if stackEventsRes.NextToken
     }
     const really = await inquirer.prompt([{
