@@ -1,7 +1,7 @@
 {
-  "name": "strut",
-  "version": "0.0.1",
-  "description": "Sets up and provisions an AWS OU with accounts",
+  "name": "strut-cli",
+  "version": "0.0.4",
+  "description": "Strut is an IaC (Infrastructure as Code) devops utility that orchestrates applications and cloud providers.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
