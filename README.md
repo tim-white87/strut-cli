@@ -43,4 +43,4 @@ $ npm link
 
 ## License
 
-[ISC](https://github.com/vuejs/vue-cli/blob/dev/LICENSE)
+[ISC](https://github.com/cecotw/strut-cli/blob/master/LICENSE)
