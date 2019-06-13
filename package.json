@@ -1,6 +1,6 @@
 {
   "name": "strut-cli",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Strut is an IaC (Infrastructure as Code) devops utility that orchestrates applications and cloud providers.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "git",
+    "type": "https://github.com/cecotw/strut-cli",
     "url": "todo"
   },
   "bin": {
