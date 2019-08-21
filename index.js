@@ -71,6 +71,7 @@ async function main () {
       }
       for (let i = 0; i < applications.length; i++) {
         let app = applications[i];
+        console.log(app.localConfig);
         if (app.localConfig && app.localConfig.commands &&
         app.localConfig.commands[cmd] && app.localConfig.commands[cmd].length > 0) {
           for (let j = 0; j < app.localConfig.commands[cmd].length; j++) {

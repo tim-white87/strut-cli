@@ -4,7 +4,7 @@ let product = {
   applications: []
 };
 
-let localConifg = {
+let localConfig = {
   path: null,
   commands: {
     install: [], // install commands
@@ -23,7 +23,7 @@ let application = {
     type: null,
     url: null
   },
-  localConifg,
+  localConfig,
   providers: {}
 };
 
