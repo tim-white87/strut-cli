@@ -22,6 +22,13 @@ async function main () {
 
   await productModel.init();
 
+  function validateStrutFile () {
+    if (!productModel.product) {
+      console.log(colors.red(`Unable to load a valid strut file in current directory. Exiting.`));
+      process.exit(1);
+    }
+  }
+
   program
     .version(require('./package.json').version)
     .option('-c, --cloudformationParams <params>', 'Params to pass to Cloudformation in Key:Value format separated by commas', (val) => {
@@ -44,6 +51,7 @@ async function main () {
     .command('add <type> [name] [value]')
     .description('Add an <application|provider> to the product')
     .action(async (type, name, value) => {
+      validateStrutFile();
       switch (type) {
         case 'application':
           await addApplicationPrompt(productModel, name);
@@ -61,6 +69,7 @@ async function main () {
     .command('run <cmd> [applications]')
     .description('Runs the specified command <install|build|start> for the product applications (separated with a comma). Default will run all apps.')
     .action(async (cmd, applications) => {
+      validateStrutFile();
       console.log(colors.blue(`run: ${colors.gray(cmd)}`));
       if (applications) {
         applications = utils.list(applications).map(a => {
@@ -86,6 +95,7 @@ async function main () {
     .command('provision [applications] [providers]')
     .description('Provisions the defined infrastructure for the applications to the specified provider. Defaults to all applications deployed to all providers')
     .action(async (applications, providers) => {
+      validateStrutFile();
       await onProviderCommand(productModel, 'provision', applications, providers, program.cloudformationParams);
     });
 
@@ -93,6 +103,7 @@ async function main () {
     .command('destroy [applications] [providers]')
     .description('Destroys the defined infrastructure for the applications to the specified provider. Defaults to all applications destroyed for all providers. Careful with this one dude, it will kill your shit.')
     .action(async (applications, providers) => {
+      validateStrutFile();
       productModel.product.applications.reverse();
       await onProviderCommand(productModel, 'destroy', applications, providers, program.cloudformationParams);
     });
@@ -101,6 +112,7 @@ async function main () {
     .command('clone [applications]')
     .description('Clones the specified applications to their respective local config paths')
     .action(applications => {
+      validateStrutFile();
       productModel.product.applications.forEach(async app => {
         await utils.run(`git clone ${app.repository.url}`);
       });
