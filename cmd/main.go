@@ -13,6 +13,7 @@ func main() {
 	color.Blue("Welcome to Strut!")
 	app := cli.NewApp()
 	app.Name = "strut"
+	app.Description = "Utility for setting up and running strut based products"
 
 	app.Commands = []cli.Command{
 		{
