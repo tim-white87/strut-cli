@@ -9,5 +9,8 @@ install: ./cmd/main.go
 	go build -o $(GOPATH)/bin/strut ./cmd/main.go
 
 .PHONY: test
-test:
+test: clean
 	go test ./...
+
+clean:
+	rm -rf ./test/testdata/**

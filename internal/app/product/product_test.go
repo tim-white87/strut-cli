@@ -1,6 +1,7 @@
 package product
 
 import (
+	"os"
 	"testing"
 
 	"github.com/cecotw/strut-cli/internal/pkg/file"
@@ -8,13 +9,17 @@ import (
 
 func TestCreate(t *testing.T) {
 	// Arrange
+	os.Chdir("../../../test/testdata")
 	productModel := New()
-
+	t.Log(os.Getwd())
 	// Act
 	productModel.CreateFile(file.Types.YAML)
 
 	// Assert
-	// if os.
+	if _, err := os.Stat("./strut.yaml"); os.IsNotExist(err) {
+		t.Fatalf("Expected ./strut.yaml file to exist")
+	}
+	os.Chdir("..")
 }
 
 func TestRead(t *testing.T) {}
