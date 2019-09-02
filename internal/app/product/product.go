@@ -1,13 +1,24 @@
 package product
 
-import (
-	"github.com/cecotw/strut-cli/internal/pkg/file"
-)
-
 // Model The product model
-type Model struct {
-	Product     *Product
-	FileService *FileService
+type Model interface {
+	CreateFile(filetype string)
+	ReadFile()
+	UpdateFile()
+	AddApplication()
+}
+
+type model struct {
+	*Product
+	*FileService
+}
+
+// New product model constructor
+func New() Model {
+	return model{
+		&Product{},
+		&FileService{},
+	}
 }
 
 // Product Product anemic model
@@ -28,16 +39,13 @@ type Application struct{}
 type FileService struct{}
 
 // CreateFile Creates the product file in JSON or YAML
-func (fs *FileService) CreateFile(name string, filetype *file.TypeRegistry) {}
+func (fs *FileService) CreateFile(filetype string) {}
 
 // ReadFile Loads the product file from the CWD
 func (fs *FileService) ReadFile() {}
 
 // UpdateFile Updates the product file
 func (fs *FileService) UpdateFile() {}
-
-// DeleteFile Deletes the product file
-func (fs *FileService) DeleteFile() {}
 
 // AddApplication Adds an application to product file
 func (fs *FileService) AddApplication() {}
