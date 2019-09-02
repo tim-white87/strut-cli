@@ -1,10 +1,14 @@
 package product
 
+import (
+	"github.com/cecotw/strut-cli/internal/pkg/file"
+)
+
 // FileService Manages the product file
 type FileService struct{}
 
 // CreateFile Creates the product file in JSON or YAML
-func (fs *FileService) CreateFile() {}
+func (fs *FileService) CreateFile(name string, filetype *file.TypeRegistry) {}
 
 // ReadFile Loads the product file from the CWD
 func (fs *FileService) ReadFile() {}
