@@ -1,8 +1,16 @@
 package product
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestCreate(t *testing.T) {}
+func TestCreate(t *testing.T) {
+	// Arrange
+
+	// Act
+
+	// Assert
+}
 
 func TestRead(t *testing.T) {}
 

@@ -5,9 +5,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
+
+var productModel = new(product.Model)
 
 func main() {
 	color.Blue("Welcome to Strut!")
