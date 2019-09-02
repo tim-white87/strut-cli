@@ -7,9 +7,13 @@ import (
 	"github.com/cecotw/strut-cli/internal/pkg/file"
 )
 
+func init() {
+	os.Chdir("../../../test/testdata")
+	// put this teardown maybe? os.Chdir("..")
+}
+
 func TestCreate(t *testing.T) {
 	// Arrange
-	os.Chdir("../../../test/testdata")
 	productModel := New()
 
 	// Act
@@ -17,9 +21,8 @@ func TestCreate(t *testing.T) {
 
 	// Assert
 	if _, err := os.Stat("./strut.yaml"); os.IsNotExist(err) {
-		t.Fatalf("Expected ./strut.yaml file to exist")
+		t.Fatalf("Expected ./strut.yaml file to exist.")
 	}
-	os.Chdir("..")
 }
 
 func TestRead(t *testing.T) {}
