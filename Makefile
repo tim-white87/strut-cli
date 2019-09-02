@@ -14,3 +14,4 @@ test: clean
 
 clean:
 	rm -rf ./test/testdata/**
+	rm -f main
