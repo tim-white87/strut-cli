@@ -11,7 +11,7 @@ func TestCreate(t *testing.T) {
 	// Arrange
 	os.Chdir("../../../test/testdata")
 	productModel := New()
-	t.Log(os.Getwd())
+
 	// Act
 	productModel.CreateFile(file.Types.YAML)
 
