@@ -1,6 +1,7 @@
 let product = {
   name: null,
   version: '0.0.0',
+  dependencies: [],
   applications: []
 };
 
@@ -28,8 +29,8 @@ let application = {
 };
 
 let commands = {
-  pre_provision: null, // runs before infrastructure provisioning
-  post_provision: null // runs after infrastructure provisioning
+  pre_provision: [], // runs synchronosly before infrastructure provisioning
+  post_provision: [] // runs after infrastructure provisioning
 };
 
 let provider = {
