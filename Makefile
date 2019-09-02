@@ -12,6 +12,7 @@ install: ./cmd/main.go
 test: clean
 	go test ./...
 
+.PHONY: clean
 clean:
-	rm -rf ./test/testdata/**
 	rm -f main
+	rm -f ./test/testdata/**
