@@ -5,6 +5,5 @@ build: ./cmd/main.go
 run: ./cmd/main.go
 	go run ./cmd/main.go
 
-.PHONY: install
 install: ./cmd/main.go
 	go build -o $(GOPATH)/bin/strut ./cmd/main.go
