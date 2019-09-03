@@ -17,7 +17,7 @@ func TestCreate(t *testing.T) {
 	productModel := New()
 
 	// Act
-	productModel.CreateFile(file.Types.YAML)
+	productModel.CreateFile(productModel, file.Types.YAML)
 
 	// Assert
 	if _, err := os.Stat("./strut.yaml"); os.IsNotExist(err) {

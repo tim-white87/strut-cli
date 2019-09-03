@@ -10,7 +10,7 @@ install: ./cmd/main.go
 
 .PHONY: test
 test: clean
-	go test ./...
+	go test -v ./...
 
 .PHONY: clean
 clean:

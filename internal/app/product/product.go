@@ -1,8 +1,18 @@
 package product
 
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+
+	"github.com/cecotw/strut-cli/internal/pkg/file"
+	"github.com/ghodss/yaml"
+)
+
 // Model The product model
 type Model interface {
-	CreateFile(filetype string)
+	CreateFile(data interface{}, fileType *file.Type)
 	ReadFile()
 	UpdateFile()
 	AddApplication()
@@ -23,10 +33,10 @@ func New() Model {
 
 // Product Product anemic model
 type Product struct {
-	Name         string
-	Version      string
-	Dependencies []Dependency
-	Applications []Application
+	Name         string        `json:"name"`
+	Version      string        `json:"version"`
+	Dependencies []Dependency  `json:"dependencies"`
+	Applications []Application `json:"applications"`
 }
 
 // Dependency Product tool/language/installation dependency
@@ -39,7 +49,30 @@ type Application struct{}
 type FileService struct{}
 
 // CreateFile Creates the product file in JSON or YAML
-func (fs *FileService) CreateFile(filetype string) {}
+func (fs *FileService) CreateFile(data interface{}, fileType *file.Type) {
+	var fileName = fmt.Sprintf("strut.%s", fileType.Extension)
+	switch fileType {
+	case file.Types.YAML:
+		{
+			yamlData, err := yaml.Marshal(data)
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				err = ioutil.WriteFile(fileName, yamlData, 0644)
+			}
+		}
+	case file.Types.JSON:
+		{
+			jsonData, err := json.Marshal(data)
+			if err != nil {
+				log.Fatal(err)
+
+			} else {
+				err = ioutil.WriteFile(fileName, jsonData, 0644)
+			}
+		}
+	}
+}
 
 // ReadFile Loads the product file from the CWD
 func (fs *FileService) ReadFile() {}

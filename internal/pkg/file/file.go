@@ -2,20 +2,17 @@ package file
 
 // Types file types
 var Types = &TypeRegistry{
-	JSON: "json",
-	YAML: "yaml",
+	JSON: &Type{"json"},
+	YAML: &Type{"yaml"},
 }
 
 // TypeRegistry Struct for various file types
 type TypeRegistry struct {
-	JSON string
-	YAML string
+	JSON *Type
+	YAML *Type
 }
 
-// Manager CRUD operations on a file
-type Manager interface {
-	CreateFile()
-	ReadFile()
-	UpdateFile()
-	DeleteFile()
+// Type file type
+type Type struct {
+	Extension string
 }
