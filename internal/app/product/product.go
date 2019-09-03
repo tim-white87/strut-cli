@@ -35,6 +35,7 @@ func New() Model {
 type Product struct {
 	Name         string        `json:"name"`
 	Version      string        `json:"version"`
+	Description  string        `json:"description,omitempty"`
 	Dependencies []Dependency  `json:"dependencies"`
 	Applications []Application `json:"applications"`
 }
@@ -43,7 +44,16 @@ type Product struct {
 type Dependency struct{}
 
 // Application Application defined in the product
-type Application struct{}
+type Application struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	// repository: {
+	//   type: null,
+	//   url: null
+	// },
+	// localConfig,
+	// providers: {}
+}
 
 // FileService Manages the product file
 type FileService struct{}
