@@ -33,17 +33,22 @@ func TestCreate(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	// Arrange
-	productModel := New(name, file.Types.YAML).(model)
+	yamlProductModel := New(name, file.Types.YAML).(model)
+	jsonProductModel := New(name, file.Types.JSON).(model)
 
 	// Act
-	product, err := productModel.ReadFile()
+	yamlProduct, err := yamlProductModel.ReadFile(yamlProductModel)
+	jsonProduct, err := yamlProductModel.ReadFile(jsonProductModel)
 
 	// Assert
 	if err != nil {
 		t.Fatalf("Expected strut file to parse to model")
 	}
-	if productModel.Name != product.Name {
-		t.Fatalf("Expected product name: %s to match match strut file name: %s", name, product.Name)
+	if yamlProductModel.Name != yamlProduct.Name {
+		t.Fatalf("Expected YAML product name: %s to match match strut file name: %s", name, yamlProduct.Name)
+	}
+	if jsonProductModel.Name != jsonProduct.Name {
+		t.Fatalf("Expected YAML product name: %s to match match strut file name: %s", name, jsonProduct.Name)
 	}
 }
 

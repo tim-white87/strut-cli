@@ -7,7 +7,7 @@ import (
 // Model The product model
 type Model interface {
 	CreateFile(model model)
-	ReadFile() (*Product, *error)
+	ReadFile(model model) (*Product, *error)
 	UpdateFile()
 	AddApplication()
 }
