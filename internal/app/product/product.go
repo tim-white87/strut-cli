@@ -7,7 +7,7 @@ import (
 // Model The product model
 type Model interface {
 	CreateFile(model Model, fileType *file.Type)
-	ReadFile()
+	ReadFile() (*Product, *error)
 	UpdateFile()
 	AddApplication()
 }
@@ -18,9 +18,9 @@ type model struct {
 }
 
 // New product model constructor
-func New() Model {
+func New(name string) Model {
 	return model{
-		&Product{},
+		&Product{Name: name},
 		&FileService{},
 	}
 }

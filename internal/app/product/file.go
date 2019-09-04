@@ -40,7 +40,7 @@ func (fs *FileService) CreateFile(model Model, fileType *file.Type) {
 }
 
 // ReadFile Loads the product file from the CWD
-func (fs *FileService) ReadFile() {}
+func (fs *FileService) ReadFile() (*Product, *error) { return nil, new(error) }
 
 // UpdateFile Updates the product file
 func (fs *FileService) UpdateFile() {}
