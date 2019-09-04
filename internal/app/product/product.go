@@ -1,32 +1,5 @@
 package product
 
-import (
-	"github.com/cecotw/strut-cli/internal/pkg/file"
-)
-
-// Model The product model
-type Model interface {
-	CreateFile(model model)
-	ReadFile(model model) (*Product, error)
-	UpdateFile(model model) (*Product, error)
-	AddApplication()
-}
-
-type model struct {
-	*FileService
-	Product  *Product
-	FileType *file.Type
-}
-
-// New product model constructor
-func New(name string, fileType *file.Type) Model {
-	return model{
-		&FileService{},
-		&Product{Name: name},
-		fileType,
-	}
-}
-
 // Product Product anemic model
 type Product struct {
 	Name         string        `json:"name"`
