@@ -18,6 +18,6 @@ clean:
 	rm -f ./test/testdata/**
 	rm -f cover.*
 
-coverage: test
+coverage:
 	go tool cover -html=cover.out -o cover.html
 	open cover.html
