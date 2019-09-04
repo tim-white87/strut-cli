@@ -16,7 +16,7 @@ type Model interface {
 type model struct {
 	*FileService
 	Product  *Product
-	FileType *file.Type
+	fileType *file.Type
 }
 
 // New product model constructor
