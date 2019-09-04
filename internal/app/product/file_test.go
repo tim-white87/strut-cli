@@ -16,11 +16,11 @@ func init() {
 
 func TestCreate(t *testing.T) {
 	// Arrange
-	productModel := New(name)
-
+	yamlProductModel := New(name, file.Types.YAML).(model)
+	jsonProductModel := New(name, file.Types.JSON).(model)
 	// Act
-	productModel.CreateFile(productModel, file.Types.YAML)
-	productModel.CreateFile(productModel, file.Types.JSON)
+	yamlProductModel.CreateFile(yamlProductModel)
+	jsonProductModel.CreateFile(jsonProductModel)
 
 	// Assert
 	if _, err := os.Stat("./strut.yaml"); os.IsNotExist(err) {
@@ -33,7 +33,7 @@ func TestCreate(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	// Arrange
-	productModel := New(name).(model)
+	productModel := New(name, file.Types.YAML).(model)
 
 	// Act
 	product, err := productModel.ReadFile()

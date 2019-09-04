@@ -14,9 +14,9 @@ import (
 type FileService struct{}
 
 // CreateFile Creates the product file in JSON or YAML
-func (fs *FileService) CreateFile(model Model, fileType *file.Type) {
-	var fileName = fmt.Sprintf("strut.%s", fileType.Extension)
-	switch fileType {
+func (fs *FileService) CreateFile(model model) {
+	var fileName = fmt.Sprintf("strut.%s", model.FileType.Extension)
+	switch model.FileType {
 	case file.Types.YAML:
 		{
 			yamlData, err := yaml.Marshal(model)
@@ -40,7 +40,9 @@ func (fs *FileService) CreateFile(model Model, fileType *file.Type) {
 }
 
 // ReadFile Loads the product file from the CWD
-func (fs *FileService) ReadFile() (*Product, *error) { return nil, new(error) }
+func (fs *FileService) ReadFile() (*Product, *error) {
+	return nil, new(error)
+}
 
 // UpdateFile Updates the product file
 func (fs *FileService) UpdateFile() {}
