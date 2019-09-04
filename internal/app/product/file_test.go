@@ -44,16 +44,22 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Expected strut file to parse to model")
 	}
-	if yamlProductModel.Name != yamlProduct.Name {
+	if yamlProductModel.Product.Name != yamlProduct.Name {
 		t.Fatalf("Expected YAML product name: %s to match match strut file name: %s", name, yamlProduct.Name)
 	}
-	if jsonProductModel.Name != jsonProduct.Name {
+	if jsonProductModel.Product.Name != jsonProduct.Name {
 		t.Fatalf("Expected YAML product name: %s to match match strut file name: %s", name, jsonProduct.Name)
 	}
 }
 
-func TestUpdate(t *testing.T) {}
+func TestUpdate(t *testing.T) {
+	t.Fatalf("Expected implementation")
+}
 
-func TestDelete(t *testing.T) {}
+func TestDelete(t *testing.T) {
+	t.Fatalf("Expected implementation")
+}
 
-func TestAddApplication(t *testing.T) {}
+func TestAddApplication(t *testing.T) {
+	t.Fatalf("Expected implementation")
+}

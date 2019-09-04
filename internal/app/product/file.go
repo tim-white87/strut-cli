@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/cecotw/strut-cli/internal/pkg/file"
 	"github.com/ghodss/yaml"
@@ -19,7 +20,7 @@ func (fs *FileService) CreateFile(model model) {
 	switch model.FileType {
 	case file.Types.YAML:
 		{
-			yamlData, err := yaml.Marshal(model)
+			yamlData, err := yaml.Marshal(model.Product)
 			if err != nil {
 				log.Fatal(err)
 			} else {
@@ -28,7 +29,7 @@ func (fs *FileService) CreateFile(model model) {
 		}
 	case file.Types.JSON:
 		{
-			jsonData, err := json.Marshal(model)
+			jsonData, err := json.MarshalIndent(model.Product, "", "  ")
 			if err != nil {
 				log.Fatal(err)
 
@@ -40,8 +41,22 @@ func (fs *FileService) CreateFile(model model) {
 }
 
 // ReadFile Loads the product file from the CWD
-func (fs *FileService) ReadFile(model model) (*Product, *error) {
-	return nil, new(error)
+func (fs *FileService) ReadFile(model model) (*Product, error) {
+	fileData, err := os.Open(fmt.Sprintf("strut.%s", model.FileType.Extension))
+	defer fileData.Close()
+	data, _ := ioutil.ReadAll(fileData)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	switch model.FileType {
+	case file.Types.JSON:
+		err = json.Unmarshal(data, model.Product)
+	case file.Types.YAML:
+		err = yaml.Unmarshal(data, model.Product)
+		// default: return new()
+	}
+	return model.Product, err
 }
 
 // UpdateFile Updates the product file

@@ -7,22 +7,22 @@ import (
 // Model The product model
 type Model interface {
 	CreateFile(model model)
-	ReadFile(model model) (*Product, *error)
+	ReadFile(model model) (*Product, error)
 	UpdateFile()
 	AddApplication()
 }
 
 type model struct {
-	*Product
 	*FileService
+	Product  *Product
 	FileType *file.Type
 }
 
 // New product model constructor
 func New(name string, fileType *file.Type) Model {
 	return model{
-		&Product{Name: name},
 		&FileService{},
+		&Product{Name: name},
 		fileType,
 	}
 }
