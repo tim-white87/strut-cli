@@ -11,10 +11,13 @@ type Model interface {
 	createFile(model model)
 	readFile(model model) (*Product, error)
 	updateFile(model model) (*Product, error)
+	SaveProduct() (*Product, error)
+	AddApplication(application *Application) (*Product, error)
 }
 
 type model struct {
 	*fileService
+	*productService
 	Product  *Product
 	fileType *file.Type
 }
@@ -23,12 +26,19 @@ type model struct {
 func New(name string, fileType *file.Type) Model {
 	return model{
 		&fileService{},
+		&productService{},
 		&Product{Name: name},
 		fileType,
 	}
 }
 
+type productService struct{}
+
+func (ps *productService) SaveProduct() (*Product, error) {
+	return nil, fmt.Errorf("error")
+}
+
 // AddApplication Adds an application to product and updates the file
-func (m *model) AddApplication(application *Application) (*Product, error) {
+func (ps *productService) AddApplication(application *Application) (*Product, error) {
 	return nil, fmt.Errorf("error")
 }

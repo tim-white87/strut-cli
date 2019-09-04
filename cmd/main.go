@@ -6,11 +6,10 @@ import (
 	"os"
 
 	"github.com/cecotw/strut-cli/internal/app/product"
+	"github.com/cecotw/strut-cli/internal/pkg/file"
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
-
-var productModel = new(product.Model)
 
 func main() {
 	color.Blue("Welcome to Strut!")
@@ -25,6 +24,8 @@ func main() {
 			ArgsUsage: "[name]",
 			Action: func(c *cli.Context) error {
 				fmt.Println("first arg: ", c.Args().First())
+				var productModel = product.New(c.Args().First(), file.Types.YAML)
+				productModel.SaveProduct()
 				return nil
 			},
 		},
