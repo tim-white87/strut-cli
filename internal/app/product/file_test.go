@@ -53,11 +53,27 @@ func TestRead(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	t.Fatalf("Expected implementation")
-}
+	// Arrange
+	yamlProductModel := New(name, file.Types.YAML).(model)
+	jsonProductModel := New(name, file.Types.JSON).(model)
 
-func TestDelete(t *testing.T) {
-	t.Fatalf("Expected implementation")
+	// Act
+	yamlProductModel.Product.Version = "2.0.0"
+	yamlProduct, err := yamlProductModel.UpdateFile(yamlProductModel)
+
+	jsonProductModel.Product.Version = "2.0.0"
+	jsonProduct, err := jsonProductModel.UpdateFile(jsonProductModel)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("Expected strut file to parse to model")
+	}
+	if yamlProduct.Version != yamlProductModel.Product.Version {
+		t.Fatalf("Expected YAML product version update for version to change from %s to %s", yamlProduct.Version, yamlProductModel.Product.Version)
+	}
+	if jsonProduct.Version != jsonProductModel.Product.Version {
+		t.Fatalf("Expected JSON product version update for version to change from %s to %s", jsonProduct.Version, jsonProductModel.Product.Version)
+	}
 }
 
 func TestAddApplication(t *testing.T) {

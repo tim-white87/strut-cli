@@ -60,7 +60,9 @@ func (fs *FileService) ReadFile(model model) (*Product, error) {
 }
 
 // UpdateFile Updates the product file
-func (fs *FileService) UpdateFile() {}
+func (fs *FileService) UpdateFile(model model) (*Product, error) {
+	return nil, fmt.Errorf("error")
+}
 
 // AddApplication Adds an application to product file
 func (fs *FileService) AddApplication() {}
