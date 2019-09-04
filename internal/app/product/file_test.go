@@ -19,8 +19,8 @@ func TestCreate(t *testing.T) {
 	yamlProductModel := New(name, file.Types.YAML).(model)
 	jsonProductModel := New(name, file.Types.JSON).(model)
 	// Act
-	yamlProductModel.CreateFile(yamlProductModel)
-	jsonProductModel.CreateFile(jsonProductModel)
+	yamlProductModel.createFile(yamlProductModel)
+	jsonProductModel.createFile(jsonProductModel)
 
 	// Assert
 	if _, err := os.Stat("./strut.yaml"); os.IsNotExist(err) {
@@ -37,8 +37,8 @@ func TestRead(t *testing.T) {
 	jsonProductModel := New(name, file.Types.JSON).(model)
 
 	// Act
-	yamlProduct, err := yamlProductModel.ReadFile(yamlProductModel)
-	jsonProduct, err := yamlProductModel.ReadFile(jsonProductModel)
+	yamlProduct, err := yamlProductModel.readFile(yamlProductModel)
+	jsonProduct, err := yamlProductModel.readFile(jsonProductModel)
 
 	// Assert
 	if err != nil {
@@ -59,10 +59,10 @@ func TestUpdate(t *testing.T) {
 
 	// Act
 	yamlProductModel.Product.Version = "2.0.0"
-	yamlProduct, err := yamlProductModel.UpdateFile(yamlProductModel)
+	yamlProduct, err := yamlProductModel.updateFile(yamlProductModel)
 
 	jsonProductModel.Product.Version = "2.0.0"
-	jsonProduct, err := jsonProductModel.UpdateFile(jsonProductModel)
+	jsonProduct, err := jsonProductModel.updateFile(jsonProductModel)
 
 	// Assert
 	if err != nil {

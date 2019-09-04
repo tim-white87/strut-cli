@@ -11,11 +11,11 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-// FileService Manages the product file
-type FileService struct{}
+// fileService Manages the product file
+type fileService struct{}
 
-// CreateFile Creates the product file in JSON or YAML
-func (fs *FileService) CreateFile(model model) {
+// createFile Creates the product file in JSON or YAML
+func (fs *fileService) createFile(model model) {
 	var fileName = fmt.Sprintf("strut.%s", model.fileType.Extension)
 	switch model.fileType {
 	case file.Types.YAML:
@@ -40,8 +40,8 @@ func (fs *FileService) CreateFile(model model) {
 	}
 }
 
-// ReadFile Loads the product file from the CWD
-func (fs *FileService) ReadFile(model model) (*Product, error) {
+// readFile Loads the product file from the CWD
+func (fs *fileService) readFile(model model) (*Product, error) {
 	fileData, err := os.Open(fmt.Sprintf("strut.%s", model.fileType.Extension))
 	defer fileData.Close()
 	data, _ := ioutil.ReadAll(fileData)
@@ -59,7 +59,7 @@ func (fs *FileService) ReadFile(model model) (*Product, error) {
 	return model.Product, err
 }
 
-// UpdateFile Updates the product file
-func (fs *FileService) UpdateFile(model model) (*Product, error) {
+// updateFile Updates the product file
+func (fs *fileService) updateFile(model model) (*Product, error) {
 	return nil, fmt.Errorf("error")
 }
