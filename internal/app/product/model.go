@@ -8,9 +8,8 @@ import (
 
 // Model The product model
 type Model interface {
-	createFile(model model)
+	writeFile(model model) (*Product, error)
 	readFile(model model) (*Product, error)
-	updateFile(model model) (*Product, error)
 	SaveProduct() (*Product, error)
 	AddApplication(application *Application) (*Product, error)
 }
