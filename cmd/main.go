@@ -23,9 +23,13 @@ func main() {
 			Usage:     "Create a new strut product",
 			ArgsUsage: "[name]",
 			Action: func(c *cli.Context) error {
-				fmt.Println("first arg: ", c.Args().First())
-				var productModel = product.New(file.Types.YAML)
-				productModel.SaveProduct()
+				var pm = product.New(file.Types.YAML)
+				var name = c.Args().First()
+				if name != "" {
+					pm.Product.Name = name
+				}
+				// TODO prompt for user input to setup other product attributes
+				pm.SaveProduct()
 				return nil
 			},
 		},

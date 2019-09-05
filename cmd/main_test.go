@@ -2,6 +2,6 @@ package main
 
 import "testing"
 
-func TestMain(t *testing.T) {
+func TestCreate(t *testing.T) {
 	t.Fatalf("Expected implementation")
 }
