@@ -16,11 +16,12 @@ const ProductFileName = "strut"
 
 // Model The product model
 type Model interface {
-	writeFile() ([]byte, error)
-	readFile() ([]byte, error)
 	LoadProduct()
 	SaveProduct()
 	AddApplication(application *Application)
+	writeFile() ([]byte, error)
+	readFile() ([]byte, error)
+	parseFile([]byte)
 }
 
 type model struct {
