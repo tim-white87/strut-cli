@@ -23,7 +23,23 @@ func TestSaveProduct(t *testing.T) {
 }
 
 func TestAddApplication(t *testing.T) {
-	t.Fatalf("Expected implementation")
+	// Arrange
+	m := New(file.Types.YAML).(*model)
+	var appName = "Derp"
+	var exists = false
+
+	// Test
+	m.AddApplication(&Application{Name: appName})
+
+	// Assert
+	for _, p := range m.Product.Applications {
+		if p.Name == appName {
+			exists = true
+		}
+	}
+	if !exists {
+		t.Fatalf("Expected application to exist in applications list.")
+	}
 }
 
 func TestWriteFile(t *testing.T) {

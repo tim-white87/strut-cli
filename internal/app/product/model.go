@@ -18,9 +18,9 @@ const ProductFileName = "strut"
 type Model interface {
 	writeFile() ([]byte, error)
 	readFile() ([]byte, error)
-	LoadProduct() (*Product, error)
-	SaveProduct() (*Product, error)
-	AddApplication(application *Application) (*Product, error)
+	LoadProduct()
+	SaveProduct()
+	AddApplication(application *Application)
 }
 
 type model struct {
@@ -36,24 +36,23 @@ func New(fileType *file.Type) Model {
 	}
 }
 
-func (m *model) LoadProduct() (*Product, error) {
-	data, err := m.readFile()
+func (m *model) LoadProduct() {
+	data, _ := m.readFile()
 	switch m.fileType {
 	case file.Types.JSON:
-		err = json.Unmarshal(data, m.Product)
+		json.Unmarshal(data, m.Product)
 	case file.Types.YAML:
-		err = yaml.Unmarshal(data, m.Product)
+		yaml.Unmarshal(data, m.Product)
 	}
-	return m.Product, err
 }
 
-func (m *model) SaveProduct() (*Product, error) {
-	return nil, fmt.Errorf("error")
+func (m *model) SaveProduct() {
+
 }
 
 // AddApplication Adds an application to product and updates the file
-func (m *model) AddApplication(application *Application) (*Product, error) {
-	return nil, fmt.Errorf("error")
+func (m *model) AddApplication(application *Application) {
+
 }
 
 // writeFile Writes the product file in JSON or YAML to the CWD
@@ -63,13 +62,9 @@ func (m *model) writeFile() ([]byte, error) {
 	var err error
 	switch m.fileType {
 	case file.Types.YAML:
-		{
-			data, err = yaml.Marshal(m.Product)
-		}
+		data, err = yaml.Marshal(m.Product)
 	case file.Types.JSON:
-		{
-			data, err = json.MarshalIndent(m.Product, "", "  ")
-		}
+		data, err = json.MarshalIndent(m.Product, "", "  ")
 	}
 	err = ioutil.WriteFile(fileName, data, 0644)
 	if err != nil {
