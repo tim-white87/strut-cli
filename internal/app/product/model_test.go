@@ -57,7 +57,7 @@ func TestReadFile(t *testing.T) {
 
 	// Act
 	yamlData, err := yamlProductModel.readFile()
-	jsonData, err := yamlProductModel.readFile()
+	jsonData, err := jsonProductModel.readFile()
 
 	// Assert
 	if err != nil {

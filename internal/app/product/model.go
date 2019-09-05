@@ -56,7 +56,7 @@ func (m *model) AddApplication(application *Application) (*Product, error) {
 	return nil, fmt.Errorf("error")
 }
 
-// writeFile Writes the product file in JSON or YAML
+// writeFile Writes the product file in JSON or YAML to the CWD
 func (m *model) writeFile() ([]byte, error) {
 	var fileName = fmt.Sprintf("%s.%s", ProductFileName, m.fileType.Extension)
 	var data []byte
@@ -65,19 +65,16 @@ func (m *model) writeFile() ([]byte, error) {
 	case file.Types.YAML:
 		{
 			data, err = yaml.Marshal(m.Product)
-			if err != nil {
-				log.Fatal(err)
-			}
 		}
 	case file.Types.JSON:
 		{
 			data, err = json.MarshalIndent(m.Product, "", "  ")
-			if err != nil {
-				log.Fatal(err)
-			}
 		}
 	}
 	err = ioutil.WriteFile(fileName, data, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return m.readFile()
 }
 
