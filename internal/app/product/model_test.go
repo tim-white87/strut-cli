@@ -32,19 +32,20 @@ func TestLoadProduct(t *testing.T) {
 
 func TestSaveProduct(t *testing.T) {
 	// Arrange
-	var version = "2.0.0"
+	var version1 = "1.0.0"
+	var version2 = "2.0.0"
 	ym := New(file.Types.YAML).(*model)
-	ym2 := New(file.Types.YAML).(*model)
 
 	// Act
-	ym.Product.Version = version
-	ym.SaveProduct(ym.Product)
-	data, _ := ym2.readFile()
-	ym2.parseFile(data)
+	ym.SaveProduct(&Product{Version: version1})
 
 	// Assert
-	if ym.Product.Version != ym2.Product.Version {
-		t.Fatalf("Expected version: %s to be updated to: %s", ym.Product.Version, ym2.Product.Version)
+	if ym.Product.Version != version1 {
+		t.Fatalf("Expected version to be set to: %s", version1)
+	}
+	ym.SaveProduct(&Product{Version: version2})
+	if ym.Product.Version != version2 {
+		t.Fatalf("Expected version to be changed to: %s", version2)
 	}
 }
 
