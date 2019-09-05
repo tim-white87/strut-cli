@@ -6,6 +6,9 @@ import (
 	"github.com/cecotw/strut-cli/internal/pkg/file"
 )
 
+// ProductFileName name of the product file
+const ProductFileName = "strut"
+
 // Model The product model
 type Model interface {
 	writeFile(model model) (*Product, error)
