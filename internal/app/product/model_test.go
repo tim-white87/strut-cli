@@ -15,7 +15,19 @@ func init() {
 }
 
 func TestLoadProduct(t *testing.T) {
-	t.Fatalf("Expected implementation")
+	// Arrange
+	var name = "Derp"
+	m := New(file.Types.YAML).(*model)
+
+	// Act
+	m.LoadProduct()
+	m.Product.Name = name
+	m.LoadProduct()
+
+	// Assert
+	if m.Product.Name == name {
+		t.Fatalf("Expected name to get loaded from file")
+	}
 }
 
 func TestSaveProduct(t *testing.T) {
