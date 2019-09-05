@@ -86,3 +86,27 @@ func TestReadFile(t *testing.T) {
 		t.Fatalf("Expected strut.json file to parse to model: %s", err)
 	}
 }
+
+func TestParseFile(t *testing.T) {
+	// Arrange
+	var name = "Derp"
+	yamlProductModel := New(file.Types.YAML).(*model)
+	jsonProductModel := New(file.Types.JSON).(*model)
+
+	// Act
+	yamlProductModel.Product.Name = name
+	yamlData, _ := yamlProductModel.readFile()
+	yamlProductModel.parseFile(yamlData)
+
+	jsonProductModel.Product.Name = name
+	jsonData, _ := jsonProductModel.readFile()
+	jsonProductModel.parseFile(jsonData)
+
+	// Assert
+	if yamlProductModel.Product.Name == name {
+		t.Fatalf("Expected product model to get parsed from YAML file")
+	}
+	if jsonProductModel.Product.Name == name {
+		t.Fatalf("Expected product model to get parsed from JSON file")
+	}
+}

@@ -37,17 +37,15 @@ func New(fileType *file.Type) Model {
 }
 
 func (m *model) LoadProduct() {
-	data, _ := m.readFile()
-	switch m.fileType {
-	case file.Types.JSON:
-		json.Unmarshal(data, m.Product)
-	case file.Types.YAML:
-		yaml.Unmarshal(data, m.Product)
-	}
+
 }
 
 func (m *model) SaveProduct() {
-
+	data, err := m.writeFile()
+	m.parseFile(data)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // AddApplication Adds an application to product and updates the file
@@ -78,9 +76,22 @@ func (m *model) writeFile() ([]byte, error) {
 func (m *model) readFile() ([]byte, error) {
 	fileData, err := os.Open(fmt.Sprintf("%s.%s", ProductFileName, m.fileType.Extension))
 	defer fileData.Close()
+	data, err := ioutil.ReadAll(fileData)
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		log.Fatal(err)
 	}
-	return ioutil.ReadAll(fileData)
+	return data, err
+}
+
+func (m *model) parseFile(data []byte) {
+	var err error
+	switch m.fileType {
+	case file.Types.JSON:
+		err = json.Unmarshal(data, m.Product)
+	case file.Types.YAML:
+		err = yaml.Unmarshal(data, m.Product)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
 }
