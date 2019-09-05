@@ -10,6 +10,10 @@ func init() {
 	// put this teardown maybe? os.Chdir("..")
 }
 
+func TestLoadProduct(t *testing.T) {
+	t.Fatalf("Expected implementation")
+}
+
 func TestSaveProduct(t *testing.T) {
 	t.Fatalf("Expected implementation")
 }

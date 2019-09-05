@@ -16,11 +16,11 @@ func init() {
 
 func TestWriteFile(t *testing.T) {
 	// Arrange
-	yamlProductModel := New(name, file.Types.YAML).(model)
-	jsonProductModel := New(name, file.Types.JSON).(model)
+	yamlProductModel := New(file.Types.YAML).(model)
+	jsonProductModel := New(file.Types.JSON).(model)
 	// Act
-	yamlProduct, yamlErr := yamlProductModel.writeFile(yamlProductModel)
-	jsonProduct, jsonErr := jsonProductModel.writeFile(jsonProductModel)
+	_, yamlErr := yamlProductModel.writeFile(yamlProductModel)
+	_, jsonErr := jsonProductModel.writeFile(jsonProductModel)
 
 	// Assert
 	if _, err := os.Stat("./strut.yaml"); os.IsNotExist(err) {
@@ -30,23 +30,17 @@ func TestWriteFile(t *testing.T) {
 		t.Fatalf("Expected ./strut.json file to exist.")
 	}
 	if yamlErr != nil {
-		t.Fatalf("Expected no error %s", yamlErr)
-	}
-	if yamlProduct.Name != yamlProductModel.Product.Name {
-		t.Fatalf("Expected YAML product name: %s to match match strut file name: %s", yamlProduct.Name, yamlProductModel.Product.Name)
+		t.Fatalf("Expected no YAML error %s", yamlErr)
 	}
 	if jsonErr != nil {
-		t.Fatalf("Expected no error %s", jsonErr)
-	}
-	if jsonProduct.Name != jsonProductModel.Product.Name {
-		t.Fatalf("Expected YAML product name: %s to match match strut file name: %s", jsonProduct.Name, jsonProductModel.Product.Name)
+		t.Fatalf("Expected no JSON error %s", jsonErr)
 	}
 }
 
 func TestReadFile(t *testing.T) {
 	// Arrange
-	yamlProductModel := New(name, file.Types.YAML).(model)
-	jsonProductModel := New(name, file.Types.JSON).(model)
+	yamlProductModel := New(file.Types.YAML).(model)
+	jsonProductModel := New(file.Types.JSON).(model)
 
 	// Act
 	yamlProduct, err := yamlProductModel.readFile(yamlProductModel)

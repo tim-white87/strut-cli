@@ -22,16 +22,20 @@ type model struct {
 }
 
 // New product model constructor
-func New(name string, fileType *file.Type) Model {
+func New(fileType *file.Type) Model {
 	return model{
 		&fileService{},
 		&productService{},
-		&Product{Name: name},
+		&Product{},
 		fileType,
 	}
 }
 
 type productService struct{}
+
+func (ps *productService) LoadProduct() (*Product, error) {
+	return nil, fmt.Errorf("error")
+}
 
 func (ps *productService) SaveProduct() (*Product, error) {
 	return nil, fmt.Errorf("error")

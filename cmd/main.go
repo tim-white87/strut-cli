@@ -24,7 +24,7 @@ func main() {
 			ArgsUsage: "[name]",
 			Action: func(c *cli.Context) error {
 				fmt.Println("first arg: ", c.Args().First())
-				var productModel = product.New(c.Args().First(), file.Types.YAML)
+				var productModel = product.New(file.Types.YAML)
 				productModel.SaveProduct()
 				return nil
 			},
