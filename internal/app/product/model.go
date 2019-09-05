@@ -16,7 +16,7 @@ const ProductFileName = "strut"
 // Model The product model
 type Model interface {
 	LoadProduct()
-	SaveProduct()
+	SaveProduct(product *Product)
 	AddApplication(application *Application)
 	writeFile() ([]byte, error)
 	readFile() ([]byte, error)
@@ -41,11 +41,12 @@ func (m *model) LoadProduct() {
 	if err == nil {
 		m.parseFile(data)
 	} else {
-		m.SaveProduct()
+		m.SaveProduct(m.Product)
 	}
 }
 
-func (m *model) SaveProduct() {
+func (m *model) SaveProduct(product *Product) {
+	m.Product = product
 	data, _ := m.writeFile()
 	m.parseFile(data)
 }
@@ -53,7 +54,7 @@ func (m *model) SaveProduct() {
 // AddApplication Adds an application to product and updates the file
 func (m *model) AddApplication(application *Application) {
 	m.Product.Applications = append(m.Product.Applications, *application)
-	m.SaveProduct()
+	m.SaveProduct(m.Product)
 }
 
 // writeFile Writes the product file in JSON or YAML to the CWD

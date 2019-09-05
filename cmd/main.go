@@ -31,7 +31,7 @@ func main() {
 					// pm.Product.Name = name
 				}
 				// TODO prompt for user input to setup other product attributes
-				pm.SaveProduct()
+				pm.SaveProduct(&product.Product{Name: name})
 				return nil
 			},
 		},

@@ -38,7 +38,7 @@ func TestSaveProduct(t *testing.T) {
 
 	// Act
 	ym.Product.Version = version
-	ym.SaveProduct()
+	ym.SaveProduct(ym.Product)
 	data, _ := ym2.readFile()
 	ym2.parseFile(data)
 
