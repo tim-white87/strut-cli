@@ -52,7 +52,8 @@ func (m *model) SaveProduct() {
 
 // AddApplication Adds an application to product and updates the file
 func (m *model) AddApplication(application *Application) {
-
+	m.Product.Applications = append(m.Product.Applications, *application)
+	m.SaveProduct()
 }
 
 // writeFile Writes the product file in JSON or YAML to the CWD

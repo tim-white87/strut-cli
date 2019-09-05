@@ -28,7 +28,7 @@ func TestAddApplication(t *testing.T) {
 	var appName = "Derp"
 	var exists = false
 
-	// Test
+	// Act
 	m.AddApplication(&Application{Name: appName})
 
 	// Assert
