@@ -19,7 +19,21 @@ func TestLoadProduct(t *testing.T) {
 }
 
 func TestSaveProduct(t *testing.T) {
-	t.Fatalf("Expected implementation")
+	// Arrange
+	var version = "2.0.0"
+	ym := New(file.Types.YAML).(*model)
+	ym2 := New(file.Types.YAML).(*model)
+
+	// Act
+	ym.Product.Version = version
+	ym.SaveProduct()
+	data, _ := ym2.readFile()
+	ym2.parseFile(data)
+
+	// Assert
+	if ym.Product.Version != ym2.Product.Version {
+		t.Fatalf("Expected version: %s to be updated to: %s", ym.Product.Version, ym2.Product.Version)
+	}
 }
 
 func TestAddApplication(t *testing.T) {
