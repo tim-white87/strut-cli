@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 
 	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
@@ -21,12 +22,13 @@ func main() {
 		{
 			Name:      "create",
 			Usage:     "Create a new strut product",
+			Category:  "Setup",
 			ArgsUsage: "[name]",
 			Action: func(c *cli.Context) error {
 				var pm = product.New(file.Types.YAML)
 				var name = c.Args().First()
 				if name != "" {
-					pm.Product.Name = name
+					// pm.Product.Name = name
 				}
 				// TODO prompt for user input to setup other product attributes
 				pm.SaveProduct()
@@ -34,25 +36,65 @@ func main() {
 			},
 		},
 		{
-			Name:      "add",
-			Usage:     "Add an <application|provider> to the product",
+			Name:      "application",
+			Usage:     "Setup product application",
+			Category:  "Setup",
 			ArgsUsage: "<type> [name] [value]",
-			Action: func(c *cli.Context) error {
-				fmt.Println("first arg: ", c.Args().First())
-				return nil
+			Subcommands: []cli.Command{
+				{
+					Name:  "add",
+					Usage: "Add application",
+					Action: func(c *cli.Context) error {
+						fmt.Println("new task template: ", c.Args().First())
+						return nil
+					},
+				},
+				{
+					Name:  "provider",
+					Usage: "Add application",
+					Action: func(c *cli.Context) error {
+						fmt.Println("new task template: ", c.Args().First())
+						return nil
+					},
+				},
 			},
 		},
 		{
 			Name:      "run",
-			Usage:     "Runs the specified command <install|build|start> for the product applications (separated with a comma). Default will run all apps.",
+			Category:  "Develop",
+			Usage:     "Runs defined application commands",
 			ArgsUsage: "<cmd> [applications]",
-			Action: func(c *cli.Context) error {
-				fmt.Println("first arg: ", c.Args().First())
-				return nil
+			// TODO lets read the commands from the strut file and set this up dynamically
+			Subcommands: []cli.Command{
+				{
+					Name:  "install",
+					Usage: "Runs defined install commands",
+					Action: func(c *cli.Context) error {
+						fmt.Println("new task template: ", c.Args().First())
+						return nil
+					},
+				},
+				{
+					Name:  "build",
+					Usage: "Runs defined build commands",
+					Action: func(c *cli.Context) error {
+						fmt.Println("new task template: ", c.Args().First())
+						return nil
+					},
+				},
+				{
+					Name:  "start",
+					Usage: "Runs defined start commands",
+					Action: func(c *cli.Context) error {
+						fmt.Println("new task template: ", c.Args().First())
+						return nil
+					},
+				},
 			},
 		},
 		{
 			Name:      "provision",
+			Category:  "Develop",
 			Usage:     "Provisions the defined infrastructure for the applications to the specified provider. Defaults to all applications deployed to all providers",
 			ArgsUsage: "[applications] [providers]",
 			Action: func(c *cli.Context) error {
@@ -61,6 +103,8 @@ func main() {
 			},
 		},
 	}
+
+	sort.Sort(cli.CommandsByName(app.Commands))
 
 	err := app.Run(os.Args)
 	if err != nil {
