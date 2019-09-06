@@ -15,7 +15,7 @@ test: clean
 .PHONY: clean
 clean:
 	rm -f main
-	rm -f ./test/testdata/**
+	rm -rf ./test/testdata/**
 	rm -f cover.*
 
 coverage:
