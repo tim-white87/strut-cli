@@ -6,6 +6,9 @@ var Types = &TypeRegistry{
 	YAML: &Type{"yaml"},
 }
 
+// TypeList list of types
+var TypeList = []Type{*Types.JSON, *Types.YAML}
+
 // TypeRegistry Struct for various file types
 type TypeRegistry struct {
 	JSON *Type

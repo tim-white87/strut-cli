@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/cecotw/strut-cli/internal/cli"
+	"github.com/cecotw/strut-cli/internal/app/cli"
 
 	"github.com/fatih/color"
 )

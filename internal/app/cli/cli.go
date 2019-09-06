@@ -22,15 +22,7 @@ func StartCLI(args []string) error {
 			Usage:     "Create a new strut product",
 			Category:  "Setup",
 			ArgsUsage: "[name]",
-			Action: func(c *cli.Context) error {
-				var pm = product.New(file.Types.YAML)
-				name := c.Args().First()
-				if name == "" {
-					// TODO prompt for user input to setup other product attributes
-				}
-				pm.SaveProduct(&product.Product{Name: name})
-				return nil
-			},
+			Action:    create,
 		},
 		{
 			Name:      "application",
@@ -104,4 +96,24 @@ func StartCLI(args []string) error {
 	sort.Sort(cli.CommandsByName(app.Commands))
 
 	return app.Run(os.Args)
+}
+
+func create(c *cli.Context) error {
+	var pm = product.New(file.Types.YAML)
+	name := c.Args().First()
+	if name == "" {
+		// TODO prompt for user input to setup other product attributes
+	}
+	pm.SaveProduct(&product.Product{Name: name})
+	return nil
+}
+
+func checkForProductFile() bool {
+	for _, fileType := range file.TypeList {
+		var filePath = fmt.Sprintf("./%s.%s", product.ProductFileName, fileType.Extension)
+		if _, err := os.Stat(filePath); !os.IsNotExist(err) {
+			return true
+		}
+	}
+	return false
 }
