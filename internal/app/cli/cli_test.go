@@ -20,6 +20,18 @@ func TestCreate(t *testing.T) {
 	if err == nil {
 		t.Fatalf("Expected exit error since if there already is a product file.")
 	}
+
+	// if _, yerr := os.Stat("./strut.yaml"); !os.IsNotExist(yerr) {
+	// 	defer os.Remove("./strut.yaml")
+	// }
+	// if _, jerr := os.Stat("./strut.json"); !os.IsNotExist(jerr) {
+	// 	defer os.Remove("./strut.json")
+	// }
+	// cerr := create(new(cli.Context))
+
+	// if cerr != nil {
+	// 	t.Fatalf("Expected to build product file.")
+	// }
 }
 
 func TestCheckForProductFile(t *testing.T) {
