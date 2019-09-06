@@ -3,6 +3,8 @@ package cli
 import (
 	"os"
 	"testing"
+
+	"github.com/urfave/cli"
 )
 
 const TestDataFolder = "../../../test/testdata"
@@ -13,7 +15,11 @@ func init() {
 }
 
 func TestCreate(t *testing.T) {
-	t.Fatalf("Expected implementation")
+	err := create(new(cli.Context))
+
+	if err == nil {
+		t.Fatalf("Expected exit error since if there already is a product file.")
+	}
 }
 
 func TestCheckForProductFile(t *testing.T) {

@@ -99,6 +99,9 @@ func StartCLI(args []string) error {
 }
 
 func create(c *cli.Context) error {
+	if checkForProductFile() {
+		return cli.NewExitError("Product file already exists in folder.", 1)
+	}
 	var pm = product.New(file.Types.YAML)
 	name := c.Args().First()
 	if name == "" {
