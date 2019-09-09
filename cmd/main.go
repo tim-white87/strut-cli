@@ -11,7 +11,7 @@ import (
 
 func main() {
 	color.Blue("Welcome to Strut!")
-	cliErr := cli.StartCLI(os.Args)
+	cliErr := cli.StartCli(os.Args)
 	if cliErr != nil {
 		log.Fatal(cliErr)
 	}

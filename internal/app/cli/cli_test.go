@@ -14,6 +14,14 @@ func init() {
 	// put this teardown maybe? os.Chdir("..")
 }
 
+func TestStartCli(t *testing.T) {
+	cliErr := StartCli(nil)
+
+	if cliErr != nil {
+		t.Fatalf("Expected cli to start. Cli error: %s", cliErr)
+	}
+}
+
 func TestCreate(t *testing.T) {
 	err := create(new(cli.Context))
 

@@ -10,8 +10,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-// StartCLI - gathers command line args
-func StartCLI(args []string) error {
+// StartCli - gathers command line args
+func StartCli(args []string) error {
 	app := cli.NewApp()
 	app.Name = "strut"
 	app.Description = "Utility for setting up and running strut based products"
@@ -108,7 +108,7 @@ func create(c *cli.Context) error {
 		name = c.Args().First()
 	}
 	if name == "" {
-		// TODO prompt for user input to setup other product attributes
+		createPrompt()
 	}
 	pm.SaveProduct(&product.Product{Name: name})
 	return nil
