@@ -103,7 +103,10 @@ func create(c *cli.Context) error {
 		return cli.NewExitError("Product file already exists in folder.", 1)
 	}
 	var pm = product.New(file.Types.YAML)
-	name := c.Args().First()
+	var name string
+	if c != nil {
+		name = c.Args().First()
+	}
 	if name == "" {
 		// TODO prompt for user input to setup other product attributes
 	}
