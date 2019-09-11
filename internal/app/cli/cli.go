@@ -23,11 +23,7 @@ func StartCli(args []string) error {
 			Category:  "Setup",
 			ArgsUsage: "[name]",
 			Action: func(c *cli.Context) error {
-				if c.Args().First() != "" {
-					create(&product.Product{Name: c.Args().First()})
-				} else {
-					create(nil)
-				}
+				create(c.Args().First())
 				return nil
 			},
 		},
@@ -105,16 +101,13 @@ func StartCli(args []string) error {
 	return app.Run(args)
 }
 
-func create(p *product.Product) error {
+func create(name string) error {
 	if checkForProductFile() {
 		return cli.NewExitError("Product file already exists in folder.", 1)
 	}
-	var pm = product.New(file.Types.YAML)
-
-	if p == nil {
-		p = createPrompt()
-	}
-	pm.SaveProduct(p)
+	name, ft := createPrompt(name)
+	var pm = product.New(ft)
+	pm.SaveProduct(&product.Product{Name: name})
 	return nil
 }
 
