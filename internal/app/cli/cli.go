@@ -23,8 +23,8 @@ func StartCli(args []string) error {
 			Category:  "Setup",
 			ArgsUsage: "[name]",
 			Action: func(c *cli.Context) error {
-				create(c.Args().First())
-				return nil
+				err := create(c.Args().First())
+				return err
 			},
 		},
 		{

@@ -9,12 +9,18 @@ import (
 )
 
 func createPrompt(name string) (*product.Product, *file.Type) {
+	answers := struct {
+		Name      string
+		Extension string
+	}{}
 	prompt := []*survey.Question{}
 	if name == "" {
 		prompt = append(prompt, &survey.Question{
 			Name:   "name",
 			Prompt: &survey.Input{Message: "Enter new strut product name:"},
 		})
+	} else {
+		answers.Name = name
 	}
 
 	prompt = append(prompt, &survey.Question{
@@ -28,10 +34,7 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 			Default: file.Types.YAML.Extension,
 		},
 	})
-	answers := struct {
-		Name      string
-		Extension string
-	}{}
+
 	err := survey.Ask(prompt, answers)
 	if err != nil {
 		fmt.Println(err.Error())
