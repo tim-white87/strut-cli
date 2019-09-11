@@ -105,9 +105,9 @@ func create(name string) error {
 	if checkForProductFile() {
 		return cli.NewExitError("Product file already exists in folder.", 1)
 	}
-	name, ft := createPrompt(name)
+	p, ft := createPrompt(name)
 	var pm = product.New(ft)
-	pm.SaveProduct(&product.Product{Name: name})
+	pm.SaveProduct(p)
 	return nil
 }
 

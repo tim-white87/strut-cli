@@ -36,7 +36,7 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	var ft *file.Type
+	ft := file.Types.YAML
 	for _, fileType := range file.TypeList {
 		if fileType.Extension == answers.Extension {
 			ft = fileType
