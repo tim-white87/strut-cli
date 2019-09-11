@@ -28,14 +28,22 @@ func StartCli(args []string) error {
 			},
 		},
 		{
-			Name:      "application",
-			Usage:     "Setup product application",
+			Name:      "add",
+			Usage:     "Add to the product, must run subcommand for the item to be added",
 			Category:  "Setup",
 			ArgsUsage: "<type> [name] [value]",
 			Subcommands: []cli.Command{
 				{
-					Name:  "add",
-					Usage: "Add application",
+					Name:  "application",
+					Usage: "Setup product application",
+					Action: func(c *cli.Context) error {
+						fmt.Println("new task template: ", c.Args().First())
+						return nil
+					},
+				},
+				{
+					Name:  "dependency",
+					Usage: "Setup product software dependency, such as git, docker, etc.",
 					Action: func(c *cli.Context) error {
 						fmt.Println("new task template: ", c.Args().First())
 						return nil
@@ -43,7 +51,7 @@ func StartCli(args []string) error {
 				},
 				{
 					Name:  "provider",
-					Usage: "Add application",
+					Usage: "Add application provider",
 					Action: func(c *cli.Context) error {
 						fmt.Println("new task template: ", c.Args().First())
 						return nil
