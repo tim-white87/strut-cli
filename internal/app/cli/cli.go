@@ -51,7 +51,7 @@ func StartCli(args []string) error {
 				},
 				{
 					Name:  "provider",
-					Usage: "Add application provider",
+					Usage: "Add provider to application(s)",
 					Action: func(c *cli.Context) error {
 						fmt.Println("new task template: ", c.Args().First())
 						return nil
