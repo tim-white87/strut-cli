@@ -15,7 +15,7 @@ func init() {
 }
 
 func TestStartCli(t *testing.T) {
-	cliErr := StartCli(nil)
+	cliErr := StartCli([]string{"create"})
 
 	if cliErr != nil {
 		t.Fatalf("Expected cli to start. Cli error: %s", cliErr)
@@ -55,5 +55,4 @@ func TestCheckForProductFile(t *testing.T) {
 	if exists {
 		t.Fatalf("Expected false if there are no product files.")
 	}
-
 }

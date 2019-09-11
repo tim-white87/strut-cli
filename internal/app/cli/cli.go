@@ -95,7 +95,7 @@ func StartCli(args []string) error {
 
 	sort.Sort(cli.CommandsByName(app.Commands))
 
-	return app.Run(os.Args)
+	return app.Run(args)
 }
 
 func create(c *cli.Context) error {
