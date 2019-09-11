@@ -10,7 +10,7 @@ import (
 
 func createPrompt(name string) (*product.Product, *file.Type) {
 	answers := struct {
-		Name      string
+		*product.Product
 		Extension string
 	}{}
 	prompt := []*survey.Question{}
@@ -23,17 +23,23 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 		answers.Name = name
 	}
 
-	prompt = append(prompt, &survey.Question{
-		Name: "extension",
-		Prompt: &survey.Select{
-			Message: "Select file type:",
-			Options: []string{
-				file.Types.YAML.Extension,
-				file.Types.JSON.Extension,
-			},
-			Default: file.Types.YAML.Extension,
+	prompt = append(prompt, []*survey.Question{
+		{
+			Name:   "description",
+			Prompt: &survey.Input{Message: "Enter new product description:"},
 		},
-	})
+		{
+			Name: "extension",
+			Prompt: &survey.Select{
+				Message: "Select file type:",
+				Options: []string{
+					file.Types.YAML.Extension,
+					file.Types.JSON.Extension,
+				},
+				Default: file.Types.YAML.Extension,
+			},
+		},
+	}...)
 
 	err := survey.Ask(prompt, answers)
 	if err != nil {
@@ -46,5 +52,8 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 			break
 		}
 	}
-	return &product.Product{Name: answers.Name}, ft
+	return &product.Product{
+		Name:        answers.Name,
+		Description: answers.Description,
+	}, ft
 }
