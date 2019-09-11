@@ -22,7 +22,14 @@ func StartCli(args []string) error {
 			Usage:     "Create a new strut product",
 			Category:  "Setup",
 			ArgsUsage: "[name]",
-			Action:    create,
+			Action: func(c *cli.Context) error {
+				if c.Args().First() != "" {
+					create(&product.Product{Name: c.Args().First()})
+				} else {
+					create(nil)
+				}
+				return nil
+			},
 		},
 		{
 			Name:      "application",
@@ -98,19 +105,16 @@ func StartCli(args []string) error {
 	return app.Run(args)
 }
 
-func create(c *cli.Context) error {
+func create(p *product.Product) error {
 	if checkForProductFile() {
 		return cli.NewExitError("Product file already exists in folder.", 1)
 	}
 	var pm = product.New(file.Types.YAML)
-	var name string
-	if c != nil {
-		name = c.Args().First()
+
+	if p == nil {
+		p = createPrompt()
 	}
-	if name == "" {
-		createPrompt()
-	}
-	pm.SaveProduct(&product.Product{Name: name})
+	pm.SaveProduct(p)
 	return nil
 }
 

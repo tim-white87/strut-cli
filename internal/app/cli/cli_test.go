@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/urfave/cli"
+	"github.com/cecotw/strut-cli/internal/app/product"
 )
 
 const TestDataFolder = "../../../test/testdata"
@@ -23,10 +23,7 @@ func TestStartCli(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	c := &cli.Context{
-		Command: cli.Command{Name: "Test"},
-	}
-	err := create(c)
+	err := create(&product.Product{Name: "Foobar"})
 
 	if err == nil {
 		t.Fatalf("Expected exit error since if there already is a product file.")
