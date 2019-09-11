@@ -23,7 +23,10 @@ func TestStartCli(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	err := create(new(cli.Context))
+	c := &cli.Context{
+		Command: cli.Command{Name: "Test"},
+	}
+	err := create(c)
 
 	if err == nil {
 		t.Fatalf("Expected exit error since if there already is a product file.")
