@@ -46,14 +46,14 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCheckForProductFile(t *testing.T) {
-	exists := checkForProductFile()
+	exists, _ := checkForProductFile()
 
 	if !exists {
 		t.Fatalf("Expected true if product file exists.")
 	}
 
 	os.Chdir("../")
-	exists = checkForProductFile()
+	exists, _ = checkForProductFile()
 
 	if exists {
 		t.Fatalf("Expected false if there are no product files.")
