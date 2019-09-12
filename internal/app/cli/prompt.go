@@ -116,7 +116,7 @@ func addApplicationPrompt() *product.Application {
 }
 
 func addDependencyPrompt() *product.Dependency {
-	color.Yellow("Lets add product software dependency.")
+	color.Yellow("Lets add a product software dependency.")
 	answers := struct {
 		Name    string
 		Install string
