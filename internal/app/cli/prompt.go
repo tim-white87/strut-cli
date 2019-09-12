@@ -61,14 +61,57 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 
 func addApplicationPrompt() *product.Application {
 	color.Yellow("Lets add an application to your product.")
-	answers := &product.Application{}
-	prompt := []*survey.Question{
+	answers := &product.Application{
+		Version:     "0.0.0",
+		LocalConfig: &product.LocalConfig{},
+	}
+	err := survey.Ask([]*survey.Question{
 		{
-			Name:   "description",
+			Name:   "name",
 			Prompt: &survey.Input{Message: "Enter application name:"},
 		},
+	}, answers)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
-	err := survey.Ask(prompt, answers)
+	include := struct{ hasRepo bool }{}
+	err = survey.Ask([]*survey.Question{
+		{
+			Name:   "hasRepo",
+			Prompt: &survey.Confirm{Message: "Include Repo?"},
+		},
+	}, include)
+	if include.hasRepo {
+		err = survey.Ask([]*survey.Question{
+			{
+				Name:   "url",
+				Prompt: &survey.Input{Message: "Provide the remote URL to the app code:"},
+			},
+			{
+				Name: "type",
+				Prompt: &survey.Select{
+					Message: "Please select your VCS:",
+					Options: []string{"git", "SVN", "mercurial"},
+				},
+			},
+		}, answers.Repository)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}
+	err = survey.Ask([]*survey.Question{
+		{
+			Name:   "path",
+			Prompt: &survey.Input{Message: "Provide the local path to the application code:"},
+		},
+		{
+			Name: "type",
+			Prompt: &survey.Select{
+				Message: "Please select your VCS:",
+				Options: []string{"git", "SVN", "mercurial"},
+			},
+		},
+	}, answers.LocalConfig)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

@@ -54,7 +54,7 @@ func (m *model) SaveProduct(product *Product) {
 
 // AddApplication Adds an application to product and updates the file
 func (m *model) AddApplication(application *Application) {
-	m.Product.Applications = append(m.Product.Applications, *application)
+	m.Product.Applications = append(m.Product.Applications, application)
 	m.SaveProduct(m.Product)
 }
 

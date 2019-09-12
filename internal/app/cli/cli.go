@@ -134,8 +134,6 @@ func addApplication(c *cli.Context) error {
 	}
 	a := addApplicationPrompt()
 	pm := product.NewProductModel(ft)
-	p := pm.LoadProduct()
-	p.Applications = append(p.Applications, a)
-	pm.SaveProduct(p)
+	pm.AddApplication(a)
 	return nil
 }
