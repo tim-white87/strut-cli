@@ -74,14 +74,17 @@ func addApplicationPrompt() *product.Application {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	include := struct{ hasRepo bool }{}
+	include := struct{ repo bool }{}
 	err = survey.Ask([]*survey.Question{
 		{
-			Name:   "hasRepo",
+			Name:   "repo",
 			Prompt: &survey.Confirm{Message: "Include Repo?"},
 		},
 	}, include)
-	if include.hasRepo {
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	if include.repo {
 		err = survey.Ask([]*survey.Question{
 			{
 				Name:   "url",
