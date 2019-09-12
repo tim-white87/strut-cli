@@ -134,6 +134,7 @@ func addApplication(c *cli.Context) error {
 	}
 	a := addApplicationPrompt()
 	pm := product.NewProductModel(ft)
+	pm.LoadProduct()
 	pm.AddApplication(a)
 	return nil
 }
