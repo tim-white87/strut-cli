@@ -10,7 +10,10 @@ type Product struct {
 }
 
 // Dependency Product tool/language/installation dependency
-type Dependency struct{}
+type Dependency struct {
+	Name    string   `json:"name"`
+	Install []string `json:"install"`
+}
 
 // Application Application defined in the product
 type Application struct {

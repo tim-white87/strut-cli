@@ -69,6 +69,28 @@ func TestAddApplication(t *testing.T) {
 	}
 }
 
+func TestAddDependency(t *testing.T) {
+	// Arrange
+	m := NewProductModel(file.Types.YAML).(*model)
+	var name = "Derp"
+	var exists = false
+
+	// Act
+	m.AddDependency(&Dependency{
+		Name: name,
+	})
+
+	// Assert
+	for _, p := range m.Product.Dependencies {
+		if p.Name == name {
+			exists = true
+		}
+	}
+	if !exists {
+		t.Fatalf("Expected application to exist in applications list.")
+	}
+}
+
 func TestWriteFile(t *testing.T) {
 	// Arrange
 	yamlProductModel := NewProductModel(file.Types.YAML).(*model)
