@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/cecotw/strut-cli/internal/app/product"
@@ -27,7 +28,7 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 	prompt = append(prompt, []*survey.Question{
 		{
 			Name:   "description",
-			Prompt: &survey.Input{Message: "Enter new product description:"},
+			Prompt: &survey.Multiline{Message: "Enter new product description:"},
 		},
 		{
 			Name: "extension",
@@ -115,5 +116,26 @@ func addApplicationPrompt() *product.Application {
 }
 
 func addDependencyPrompt() *product.Dependency {
-	return nil
+	color.Yellow("Lets add product software dependency.")
+	answers := struct {
+		Name    string
+		Install string
+	}{}
+	err := survey.Ask([]*survey.Question{
+		{
+			Name:   "name",
+			Prompt: &survey.Input{Message: "What is the name of this dependency?"},
+		},
+		{
+			Name:   "install",
+			Prompt: &survey.Input{Message: "Please add the install commands in a comma separated list:"},
+		},
+	}, answers)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return &product.Dependency{
+		Name:    answers.Name,
+		Install: strings.Split(answers.Install, ","),
+	}
 }
