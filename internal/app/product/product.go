@@ -5,7 +5,7 @@ type Product struct {
 	Name         string         `json:"name"`
 	Version      string         `json:"version"`
 	Description  string         `json:"description,omitempty"`
-	Dependencies []Dependency   `json:"dependencies"`
+	Dependencies []*Dependency  `json:"dependencies"`
 	Applications []*Application `json:"applications"`
 }
 

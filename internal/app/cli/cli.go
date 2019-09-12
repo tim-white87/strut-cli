@@ -36,12 +36,9 @@ func StartCli(args []string) error {
 					Action: addApplication,
 				},
 				{
-					Name:  "dependency",
-					Usage: "Setup product software dependency, such as git, docker, etc.",
-					Action: func(c *cli.Context) error {
-						fmt.Println("new task template: ", c.Args().First())
-						return nil
-					},
+					Name:   "dependency",
+					Usage:  "Setup product software dependency, such as git, docker, etc.",
+					Action: addDependency,
 				},
 				{
 					Name:  "provider",
@@ -127,14 +124,28 @@ func create(c *cli.Context) error {
 	return nil
 }
 
+const missingFileText = "Product file doesn't exist in folder."
+
 func addApplication(c *cli.Context) error {
 	exists, ft := checkForProductFile()
 	if !exists {
-		return cli.NewExitError("Product file doesn't exist in folder.", 1)
+		return cli.NewExitError(missingFileText, 1)
 	}
 	a := addApplicationPrompt()
 	pm := product.NewProductModel(ft)
 	pm.LoadProduct()
 	pm.AddApplication(a)
+	return nil
+}
+
+func addDependency(c *cli.Context) error {
+	exists, ft := checkForProductFile()
+	if !exists {
+		return cli.NewExitError(missingFileText, 1)
+	}
+	d := addDependencyPrompt()
+	pm := product.NewProductModel(ft)
+	pm.LoadProduct()
+	pm.AddDependency(d)
 	return nil
 }

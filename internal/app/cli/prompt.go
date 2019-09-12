@@ -113,3 +113,7 @@ func addApplicationPrompt() *product.Application {
 	}
 	return answers
 }
+
+func addDependencyPrompt() *product.Dependency {
+	return nil
+}

@@ -18,6 +18,7 @@ type Model interface {
 	LoadProduct() *Product
 	SaveProduct(product *Product)
 	AddApplication(application *Application)
+	AddDependency(dependency *Dependency)
 	writeFile() ([]byte, error)
 	readFile() ([]byte, error)
 	parseFile([]byte)
@@ -55,6 +56,12 @@ func (m *model) SaveProduct(product *Product) {
 // AddApplication Adds an application to product and updates the file
 func (m *model) AddApplication(application *Application) {
 	m.Product.Applications = append(m.Product.Applications, application)
+	m.SaveProduct(m.Product)
+}
+
+// AddDependency Adds a dependency to the product
+func (m *model) AddDependency(dependency *Dependency) {
+	m.Product.Dependencies = append(m.Product.Dependencies, dependency)
 	m.SaveProduct(m.Product)
 }
 
