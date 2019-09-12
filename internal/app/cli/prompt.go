@@ -107,13 +107,6 @@ func addApplicationPrompt() *product.Application {
 			Name:   "path",
 			Prompt: &survey.Input{Message: "Provide the local path to the application code:"},
 		},
-		{
-			Name: "type",
-			Prompt: &survey.Select{
-				Message: "Please select your VCS:",
-				Options: []string{"git", "SVN", "mercurial"},
-			},
-		},
 	}, answers.LocalConfig)
 	if err != nil {
 		fmt.Println(err.Error())
