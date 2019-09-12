@@ -17,7 +17,7 @@ func init() {
 func TestLoadProduct(t *testing.T) {
 	// Arrange
 	var name = "Derp"
-	m := New(file.Types.YAML).(*model)
+	m := NewProductModel(file.Types.YAML).(*model)
 
 	// Act
 	m.LoadProduct()
@@ -34,7 +34,7 @@ func TestSaveProduct(t *testing.T) {
 	// Arrange
 	var version1 = "1.0.0"
 	var version2 = "2.0.0"
-	ym := New(file.Types.YAML).(*model)
+	ym := NewProductModel(file.Types.YAML).(*model)
 
 	// Act
 	ym.SaveProduct(&Product{Version: version1})
@@ -51,7 +51,7 @@ func TestSaveProduct(t *testing.T) {
 
 func TestAddApplication(t *testing.T) {
 	// Arrange
-	m := New(file.Types.YAML).(*model)
+	m := NewProductModel(file.Types.YAML).(*model)
 	var appName = "Derp"
 	var exists = false
 
@@ -71,8 +71,8 @@ func TestAddApplication(t *testing.T) {
 
 func TestWriteFile(t *testing.T) {
 	// Arrange
-	yamlProductModel := New(file.Types.YAML).(*model)
-	jsonProductModel := New(file.Types.JSON).(*model)
+	yamlProductModel := NewProductModel(file.Types.YAML).(*model)
+	jsonProductModel := NewProductModel(file.Types.JSON).(*model)
 
 	// Act
 	_, yamlErr := yamlProductModel.writeFile()
@@ -95,8 +95,8 @@ func TestWriteFile(t *testing.T) {
 
 func TestReadFile(t *testing.T) {
 	// Arrange
-	yamlProductModel := New(file.Types.YAML).(*model)
-	jsonProductModel := New(file.Types.JSON).(*model)
+	yamlProductModel := NewProductModel(file.Types.YAML).(*model)
+	jsonProductModel := NewProductModel(file.Types.JSON).(*model)
 
 	// Act
 	yamlData, err := yamlProductModel.readFile()
@@ -117,8 +117,8 @@ func TestReadFile(t *testing.T) {
 func TestParseFile(t *testing.T) {
 	// Arrange
 	var name = "Derp"
-	yamlProductModel := New(file.Types.YAML).(*model)
-	jsonProductModel := New(file.Types.JSON).(*model)
+	yamlProductModel := NewProductModel(file.Types.YAML).(*model)
+	jsonProductModel := NewProductModel(file.Types.JSON).(*model)
 
 	// Act
 	yamlProductModel.Product.Name = name

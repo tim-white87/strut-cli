@@ -6,6 +6,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
+	"github.com/fatih/color"
 )
 
 func createPrompt(name string) (*product.Product, *file.Type) {
@@ -56,4 +57,20 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 		Name:        answers.Name,
 		Description: answers.Description,
 	}, ft
+}
+
+func addApplicationPrompt() *product.Application {
+	color.Yellow("Lets add an application to your product.")
+	answers := &product.Application{}
+	prompt := []*survey.Question{
+		{
+			Name:   "description",
+			Prompt: &survey.Input{Message: "Enter application name:"},
+		},
+	}
+	err := survey.Ask(prompt, answers)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return answers
 }

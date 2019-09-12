@@ -22,10 +22,7 @@ func StartCli(args []string) error {
 			Usage:     "Create a new strut product",
 			Category:  "Setup",
 			ArgsUsage: "[name]",
-			Action: func(c *cli.Context) error {
-				err := create(c.Args().First())
-				return err
-			},
+			Action:    create,
 		},
 		{
 			Name:      "add",
@@ -34,12 +31,9 @@ func StartCli(args []string) error {
 			ArgsUsage: "<type> [name] [value]",
 			Subcommands: []cli.Command{
 				{
-					Name:  "application",
-					Usage: "Setup product application",
-					Action: func(c *cli.Context) error {
-						fmt.Println("new task template: ", c.Args().First())
-						return nil
-					},
+					Name:   "application",
+					Usage:  "Setup product application",
+					Action: addApplication,
 				},
 				{
 					Name:  "dependency",
@@ -109,22 +103,39 @@ func StartCli(args []string) error {
 	return app.Run(args)
 }
 
-func create(name string) error {
-	if checkForProductFile() {
+func checkForProductFile() (bool, *file.Type) {
+	for _, fileType := range file.TypeList {
+		var filePath = fmt.Sprintf("./%s.%s", product.ProductFileName, fileType.Extension)
+		if _, err := os.Stat(filePath); !os.IsNotExist(err) {
+			return true, fileType
+		}
+	}
+	return false, nil
+}
+
+func create(c *cli.Context) error {
+	if exists, _ := checkForProductFile(); exists {
 		return cli.NewExitError("Product file already exists in folder.", 1)
 	}
+	name := ""
+	if c != nil {
+		name = c.Args().First()
+	}
 	p, ft := createPrompt(name)
-	var pm = product.New(ft)
+	pm := product.NewProductModel(ft)
 	pm.SaveProduct(p)
 	return nil
 }
 
-func checkForProductFile() bool {
-	for _, fileType := range file.TypeList {
-		var filePath = fmt.Sprintf("./%s.%s", product.ProductFileName, fileType.Extension)
-		if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-			return true
-		}
+func addApplication(c *cli.Context) error {
+	exists, ft := checkForProductFile()
+	if !exists {
+		return cli.NewExitError("Product file doesn't exist in folder.", 1)
 	}
-	return false
+	a := addApplicationPrompt()
+	pm := product.NewProductModel(ft)
+	p := pm.LoadProduct()
+	p.Applications = append(p.Applications, a)
+	pm.SaveProduct(p)
+	return nil
 }

@@ -3,6 +3,8 @@ package cli
 import (
 	"os"
 	"testing"
+
+	"github.com/urfave/cli"
 )
 
 const TestDataFolder = "../../../test/testdata"
@@ -21,7 +23,10 @@ func TestStartCli(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	err := create("Foobar")
+	c := &cli.Context{
+		Command: cli.Command{Name: "Test"},
+	}
+	err := create(c)
 
 	if err == nil {
 		t.Fatalf("Expected exit error since if there already is a product file.")
@@ -33,7 +38,7 @@ func TestCreate(t *testing.T) {
 	if _, jerr := os.Stat("./strut.json"); !os.IsNotExist(jerr) {
 		os.Remove("./strut.json")
 	}
-	cerr := create("")
+	cerr := create(nil)
 
 	if cerr != nil {
 		t.Fatalf("Expected to build product file.")

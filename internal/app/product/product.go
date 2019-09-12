@@ -2,11 +2,11 @@ package product
 
 // Product Product anemic model
 type Product struct {
-	Name         string        `json:"name"`
-	Version      string        `json:"version"`
-	Description  string        `json:"description,omitempty"`
-	Dependencies []Dependency  `json:"dependencies"`
-	Applications []Application `json:"applications"`
+	Name         string         `json:"name"`
+	Version      string         `json:"version"`
+	Description  string         `json:"description,omitempty"`
+	Dependencies []Dependency   `json:"dependencies"`
+	Applications []*Application `json:"applications"`
 }
 
 // Dependency Product tool/language/installation dependency

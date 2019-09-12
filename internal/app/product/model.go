@@ -15,7 +15,7 @@ const ProductFileName = "strut"
 
 // Model The product model
 type Model interface {
-	LoadProduct()
+	LoadProduct() *Product
 	SaveProduct(product *Product)
 	AddApplication(application *Application)
 	writeFile() ([]byte, error)
@@ -28,21 +28,22 @@ type model struct {
 	fileType *file.Type
 }
 
-// New product model constructor
-func New(fileType *file.Type) Model {
+// NewProductModel product model constructor
+func NewProductModel(fileType *file.Type) Model {
 	return &model{
 		&Product{},
 		fileType,
 	}
 }
 
-func (m *model) LoadProduct() {
+func (m *model) LoadProduct() *Product {
 	data, err := m.readFile()
 	if err == nil {
 		m.parseFile(data)
 	} else {
 		m.SaveProduct(m.Product)
 	}
+	return m.Product
 }
 
 func (m *model) SaveProduct(product *Product) {
