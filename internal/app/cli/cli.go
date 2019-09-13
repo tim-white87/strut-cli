@@ -41,12 +41,9 @@ func StartCli(args []string) error {
 					Action: addDependency,
 				},
 				{
-					Name:  "provider",
-					Usage: "Add provider to application(s)",
-					Action: func(c *cli.Context) error {
-						fmt.Println("new task template: ", c.Args().First())
-						return nil
-					},
+					Name:   "provider",
+					Usage:  "Add provider to application(s)",
+					Action: addProvider,
 				},
 			},
 		},
@@ -147,5 +144,17 @@ func addDependency(c *cli.Context) error {
 	pm := product.NewProductModel(ft)
 	pm.LoadProduct()
 	pm.AddDependency(d)
+	return nil
+}
+
+func addProvider(c *cli.Context) error {
+	exists, ft := checkForProductFile()
+	if !exists {
+		return cli.NewExitError(missingFileText, 1)
+	}
+	pm := product.NewProductModel(ft)
+	product := pm.LoadProduct()
+	applications := addProviderPrompt(product.Applications)
+	pm.UpdateApplications(applications)
 	return nil
 }

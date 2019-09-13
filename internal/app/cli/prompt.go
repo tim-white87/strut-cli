@@ -139,3 +139,28 @@ func addDependencyPrompt() *product.Dependency {
 		Install: strings.Split(answers.Install, ","),
 	}
 }
+
+func addProviderPrompt(applications []*product.Application) []*product.Application {
+	color.Yellow("Well get a provider added to an applicationn")
+	var options []string
+	answers := struct {
+		application string
+	}{}
+	for _, app := range applications {
+		options = append(options, app.Name)
+	}
+	prompt := []*survey.Question{
+		{
+			Name: "application",
+			Prompt: &survey.Select{
+				Message: "Which application should this be added to?",
+				Options: options,
+			},
+		},
+	}
+	err := survey.Ask(prompt, answers)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return nil
+}
