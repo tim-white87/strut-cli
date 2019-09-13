@@ -8,7 +8,6 @@ run: clean
 install: ./cmd/main.go
 	go build -o $(GOPATH)/bin/strut ./cmd/main.go
 
-.PHONY: test
 test: clean
 	go test -v -coverprofile cover.out ./...
 

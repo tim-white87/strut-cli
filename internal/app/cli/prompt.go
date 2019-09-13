@@ -44,7 +44,7 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 		},
 	}...)
 
-	err := survey.Ask(prompt, answers)
+	err := survey.Ask(prompt, &answers)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -109,7 +109,7 @@ func addApplicationPrompt() *product.Application {
 			Name:   "path",
 			Prompt: &survey.Input{Message: "Provide the local path to the application code:"},
 		},
-	}, answers.LocalConfig)
+	}, &answers.LocalConfig)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -131,7 +131,7 @@ func addDependencyPrompt() *product.Dependency {
 			Name:   "install",
 			Prompt: &survey.Input{Message: "Please add the install commands in a comma separated list:"},
 		},
-	}, answers)
+	}, &answers)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -144,8 +144,8 @@ func addDependencyPrompt() *product.Dependency {
 func addProviderPrompt(applications []*product.Application) []*product.Application {
 	color.Yellow("Well get a provider added to an applicationn")
 	answers := struct {
-		application string
-		provider    string
+		AppName      string
+		ProviderName string
 	}{}
 	var appOptions []string
 	for _, app := range applications {
@@ -157,30 +157,31 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 	}
 	prompt := []*survey.Question{
 		{
-			Name: "application",
+			Name: "appname",
 			Prompt: &survey.Select{
 				Message: "Which application should this be added to?",
 				Options: appOptions,
 			},
 		},
 		{
-			Name: "provider",
+			Name: "providername",
 			Prompt: &survey.Select{
 				Message: "Select provider type:",
 				Options: providerOptions,
 			},
 		},
 	}
-	err := survey.Ask(prompt, answers)
+	err := survey.Ask(prompt, &answers)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	for _, app := range applications {
-		if app.Name == answers.application {
+		if app.Name == answers.AppName {
 			app.Providers = append(app.Providers, &product.Provider{
-				Name: answers.provider,
+				Name: answers.ProviderName,
 			})
 		}
 	}
+
 	return applications
 }
