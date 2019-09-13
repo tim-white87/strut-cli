@@ -21,7 +21,7 @@ type Application struct {
 	Version     string       `json:"version"`
 	Repository  *Repository  `json:"repository"`
 	LocalConfig *LocalConfig `json:"localConfig"`
-	Providers   *[]Provider  `json:"providers"`
+	Providers   []*Provider  `json:"providers"`
 }
 
 // Repository Application repository
@@ -57,7 +57,7 @@ type Provider struct {
 type Resource struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
-	Body string `json:"body"`
+	Body string `json:"body,omitempty"`
 	*ResourceCommands
 }
 

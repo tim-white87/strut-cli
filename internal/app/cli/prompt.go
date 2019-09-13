@@ -7,6 +7,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
+	"github.com/cecotw/strut-cli/internal/pkg/provider"
 	"github.com/fatih/color"
 )
 
@@ -142,19 +143,31 @@ func addDependencyPrompt() *product.Dependency {
 
 func addProviderPrompt(applications []*product.Application) []*product.Application {
 	color.Yellow("Well get a provider added to an applicationn")
-	var options []string
 	answers := struct {
 		application string
+		provider    string
 	}{}
+	var appOptions []string
 	for _, app := range applications {
-		options = append(options, app.Name)
+		appOptions = append(appOptions, app.Name)
+	}
+	var providerOptions []string
+	for _, provider := range provider.TypeList {
+		providerOptions = append(providerOptions, provider.Name)
 	}
 	prompt := []*survey.Question{
 		{
 			Name: "application",
 			Prompt: &survey.Select{
 				Message: "Which application should this be added to?",
-				Options: options,
+				Options: appOptions,
+			},
+		},
+		{
+			Name: "provider",
+			Prompt: &survey.Select{
+				Message: "Select provider type:",
+				Options: providerOptions,
 			},
 		},
 	}
@@ -162,5 +175,12 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	return nil
+	for _, app := range applications {
+		if app.Name == answers.application {
+			app.Providers = append(app.Providers, &product.Provider{
+				Name: answers.provider,
+			})
+		}
+	}
+	return applications
 }
