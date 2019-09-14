@@ -158,11 +158,24 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	selectedProviderType := provider.TypeList[providerIndex]
 	for _, app := range applications {
 		if app.Name == selectedApp.Name {
-			app.Providers = append(app.Providers, &product.Provider{
-				Type: provider.TypeList[provider.TypeList],
-			})
+			hasProvider := false
+			for _, provider := range app.Providers {
+				if provider.Type.Name == selectedProviderType.Name {
+					hasProvider = true
+					break
+				}
+			}
+			if !hasProvider {
+				color.Red("%s: already has provider: %s", app.Name, selectedProviderType.Name)
+			} else {
+				app.Providers = append(app.Providers, &product.Provider{
+					Type: selectedProviderType,
+				})
+				break
+			}
 		}
 	}
 
@@ -170,7 +183,7 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 }
 
 func selectApplication(applications []*product.Application) *product.Application {
-	var application *product.Application
+	var appIndex int
 	var appOptions []string
 	for _, app := range applications {
 		appOptions = append(appOptions, app.Name)
@@ -179,9 +192,9 @@ func selectApplication(applications []*product.Application) *product.Application
 		Message: "Which application should this be added to?",
 		Options: appOptions,
 	}
-	err := survey.AskOne(prompt, application)
+	err := survey.AskOne(prompt, appIndex)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	return application
+	return applications[appIndex]
 }
