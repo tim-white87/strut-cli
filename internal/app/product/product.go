@@ -1,5 +1,7 @@
 package product
 
+import "github.com/cecotw/strut-cli/internal/pkg/provider"
+
 // Product Product anemic model
 type Product struct {
 	Name         string         `json:"name"`
@@ -48,8 +50,8 @@ type LocalCommandRegistry struct {
 
 // Provider Hosted application provider
 type Provider struct {
-	Name      string      `json:"name"`
-	Resources *[]Resource `json:"resources"`
+	Type      *provider.Type `json:"type"`
+	Resources *[]Resource    `json:"resources"`
 	*ResourceCommands
 }
 

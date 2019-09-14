@@ -143,45 +143,45 @@ func addDependencyPrompt() *product.Dependency {
 
 func addProviderPrompt(applications []*product.Application) []*product.Application {
 	color.Yellow("Well get a provider added to an applicationn")
-	answers := struct {
-		AppName      string
-		ProviderName string
-	}{}
-	var appOptions []string
-	for _, app := range applications {
-		appOptions = append(appOptions, app.Name)
-	}
+	selectedApp := selectApplication(applications)
+
 	var providerOptions []string
 	for _, provider := range provider.TypeList {
 		providerOptions = append(providerOptions, provider.Name)
 	}
-	prompt := []*survey.Question{
-		{
-			Name: "appname",
-			Prompt: &survey.Select{
-				Message: "Which application should this be added to?",
-				Options: appOptions,
-			},
-		},
-		{
-			Name: "providername",
-			Prompt: &survey.Select{
-				Message: "Select provider type:",
-				Options: providerOptions,
-			},
-		},
+	var providerIndex int
+	prompt := &survey.Select{
+		Message: "Select provider type:",
+		Options: providerOptions,
 	}
-	err := survey.Ask(prompt, &answers)
+	err := survey.AskOne(prompt, &providerIndex)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	for _, app := range applications {
-		if app.Name == answers.AppName {
+		if app.Name == selectedApp.Name {
 			app.Providers = append(app.Providers, &product.Provider{
-				Name: answers.ProviderName,
+				Type: provider.TypeList[provider.TypeList],
 			})
 		}
 	}
 
 	return applications
+}
+
+func selectApplication(applications []*product.Application) *product.Application {
+	var application *product.Application
+	var appOptions []string
+	for _, app := range applications {
+		appOptions = append(appOptions, app.Name)
+	}
+	prompt := &survey.Select{
+		Message: "Which application should this be added to?",
+		Options: appOptions,
+	}
+	err := survey.AskOne(prompt, application)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return application
 }
