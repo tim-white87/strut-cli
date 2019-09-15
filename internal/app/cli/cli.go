@@ -54,7 +54,7 @@ func StartCli(args []string) error {
 		{
 			Name:      "run",
 			Category:  "Develop",
-			Usage:     "Runs command for applications that have it defined",
+			Usage:     "Runs command for applications that have it defined in local config",
 			ArgsUsage: "<cmd> [applications]",
 			Action:    runCommand,
 		},
