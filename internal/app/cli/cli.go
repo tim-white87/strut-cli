@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
@@ -151,15 +152,10 @@ func runCommand(c *cli.Context) error {
 		if app.LocalConfig.Commands == nil {
 			continue
 		}
-		val := reflect.ValueOf(app.LocalConfig.Commands).Elem()
-		for i := 0; i < val.NumField(); i++ {
-			appCmd := val.Type().Field(i).Name
-			if appCmd != cmd || appCmd == "" {
-				continue
-			}
-			fmt.Println(appCmd)
+		field, ok := reflect.TypeOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd))
+		if ok {
+			fmt.Println(field)
 		}
-		// run defined app command
 	}
 	return nil
 }
