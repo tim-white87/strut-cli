@@ -152,9 +152,12 @@ func runCommand(c *cli.Context) error {
 		if app.LocalConfig.Commands == nil {
 			continue
 		}
-		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd))
-		fmt.Println(appCmds)
+		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
 
+		for _, appCmd := range appCmds {
+			fmt.Println(appCmd)
+			// exec.Command(appCmd)
+		}
 	}
 	return nil
 }
