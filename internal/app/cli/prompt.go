@@ -12,21 +12,17 @@ import (
 )
 
 func createPrompt(name string) (*product.Product, *file.Type) {
-	answers := struct {
-		*product.Product
-		Extension string
-	}{}
-	prompt := []*survey.Question{}
 	if name == "" {
-		prompt = append(prompt, &survey.Question{
-			Name:   "name",
-			Prompt: &survey.Input{Message: "Enter new strut product name:"},
-		})
-	} else {
-		answers.Name = name
+		survey.AskOne(&survey.Input{
+			Message: "Enter new strut product name:",
+		}, name)
 	}
 
-	prompt = append(prompt, []*survey.Question{
+	answers := struct {
+		Description string
+		Extension   string
+	}{}
+	prompt := []*survey.Question{
 		{
 			Name:   "description",
 			Prompt: &survey.Multiline{Message: "Enter new product description:"},
@@ -42,7 +38,7 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 				Default: file.Types.YAML.Extension,
 			},
 		},
-	}...)
+	}
 
 	err := survey.Ask(prompt, &answers)
 	if err != nil {
@@ -56,7 +52,7 @@ func createPrompt(name string) (*product.Product, *file.Type) {
 		}
 	}
 	return &product.Product{
-		Name:        answers.Name,
+		Name:        name,
 		Description: answers.Description,
 	}, ft
 }
