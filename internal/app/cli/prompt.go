@@ -131,8 +131,8 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 	selectedApp := selectApplication(applications)
 
 	var providerOptions []string
-	for _, provider := range provider.TypeList {
-		providerOptions = append(providerOptions, provider.Name)
+	for _, providerType := range provider.TypeList {
+		providerOptions = append(providerOptions, providerType.Name)
 	}
 	var providerIndex int
 	prompt := &survey.Select{
@@ -153,7 +153,7 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 					break
 				}
 			}
-			if !hasProvider {
+			if hasProvider {
 				color.Red("%s: already has provider: %s", app.Name, selectedProviderType.Name)
 			} else {
 				app.Providers = append(app.Providers, &product.Provider{
