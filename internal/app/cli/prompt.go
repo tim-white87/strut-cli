@@ -63,26 +63,18 @@ func addApplicationPrompt() *product.Application {
 		Version:     "0.0.0",
 		LocalConfig: &product.LocalConfig{},
 	}
-	err := survey.Ask([]*survey.Question{
-		{
-			Name:   "name",
-			Prompt: &survey.Input{Message: "Enter application name:"},
-		},
-	}, answers)
+	err := survey.AskOne(&survey.Input{
+		Message: "Enter application name:",
+	}, &answers.Name)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	include := struct{ repo bool }{}
-	err = survey.Ask([]*survey.Question{
-		{
-			Name:   "repo",
-			Prompt: &survey.Confirm{Message: "Include Repo?"},
-		},
-	}, include)
+	hasRepo := false
+	err = survey.AskOne(&survey.Confirm{Message: "Include Repo?"}, hasRepo)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	if include.repo {
+	if hasRepo {
 		err = survey.Ask([]*survey.Question{
 			{
 				Name:   "url",
@@ -100,12 +92,9 @@ func addApplicationPrompt() *product.Application {
 			fmt.Println(err.Error())
 		}
 	}
-	err = survey.Ask([]*survey.Question{
-		{
-			Name:   "path",
-			Prompt: &survey.Input{Message: "Provide the local path to the application code:"},
-		},
-	}, &answers.LocalConfig)
+	err = survey.AskOne(&survey.Input{
+		Message: "Provide the local path to the application code:",
+	}, &answers.LocalConfig.Path)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
