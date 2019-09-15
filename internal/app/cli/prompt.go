@@ -61,7 +61,7 @@ func addApplicationPrompt() *product.Application {
 	color.Yellow("Lets add an application to your product.")
 	answers := &product.Application{
 		Version:     "0.0.0",
-		LocalConfig: &product.LocalConfig{},
+		LocalConfig: &product.LocalConfig{Commands: &product.LocalCommandRegistry{}},
 	}
 	err := survey.AskOne(&survey.Input{
 		Message: "Enter application name:",

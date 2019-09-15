@@ -3,10 +3,12 @@ package cli
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"sort"
 
 	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
+	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
 
@@ -142,11 +144,20 @@ func runCommand(c *cli.Context) error {
 	product := pm.LoadProduct()
 	cmd := c.Args().First()
 	if cmd == "" {
-		return cli.NewExitError("Specify command", 1)
+		color.Red("Specify command")
+		return cli.NewExitError("", 1)
 	}
 	for _, app := range product.Applications {
 		if app.LocalConfig.Commands == nil {
 			continue
+		}
+		val := reflect.ValueOf(app.LocalConfig.Commands).Elem()
+		for i := 0; i < val.NumField(); i++ {
+			appCmd := val.Type().Field(i).Name
+			if appCmd != cmd || appCmd == "" {
+				continue
+			}
+			fmt.Println(appCmd)
 		}
 		// run defined app command
 	}
