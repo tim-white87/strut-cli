@@ -29,8 +29,8 @@ func runCommand(c *cli.Context) error {
 	product := pm.LoadProduct()
 	cmd := c.Args().First()
 	if cmd == "" {
-		color.Red("Specify command")
-		return cli.NewExitError("", 1)
+		color.Red("Error >>> Specify command")
+		return nil
 	}
 	for _, app := range product.Applications {
 		if app.LocalConfig.Commands == nil {
@@ -39,7 +39,7 @@ func runCommand(c *cli.Context) error {
 		err := os.Chdir(app.LocalConfig.Path)
 		if err != nil {
 			color.Red("Error >>> app: %s, local path: %s", app.Name, app.LocalConfig.Path)
-			color.Red("%s", err)
+			color.Red(err.Error())
 			return nil
 		}
 		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
@@ -48,7 +48,8 @@ func runCommand(c *cli.Context) error {
 			parts := strings.Fields(appCmd)
 			data, err := exec.Command(parts[0], parts[1:]...).Output()
 			if err != nil {
-				return err
+				color.Red(err.Error())
+				return nil
 			}
 			fmt.Println(string(data))
 		}
