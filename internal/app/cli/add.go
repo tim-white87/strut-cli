@@ -6,55 +6,69 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/cecotw/strut-cli/internal/app/product"
-	"github.com/cecotw/strut-cli/internal/pkg/file"
 	"github.com/cecotw/strut-cli/internal/pkg/provider"
 	"github.com/fatih/color"
+	"github.com/urfave/cli"
 )
 
-func createPrompt(name string) (*product.Product, *file.Type) {
-	if name == "" {
-		survey.AskOne(&survey.Input{
-			Message: "Enter new strut product name:",
-		}, name)
-	}
-
-	answers := struct {
-		Description string
-		Extension   string
-	}{}
-	prompt := []*survey.Question{
+var addCmd = cli.Command{
+	Name:      "add",
+	Usage:     "Add to the product, must run subcommand for the item to be added",
+	Category:  "Setup",
+	ArgsUsage: "<type> [name] [value]",
+	Subcommands: []cli.Command{
 		{
-			Name:   "description",
-			Prompt: &survey.Multiline{Message: "Enter new product description:"},
+			Name:   "application",
+			Usage:  "Setup product application",
+			Action: addApplication,
 		},
 		{
-			Name: "extension",
-			Prompt: &survey.Select{
-				Message: "Select file type:",
-				Options: []string{
-					file.Types.YAML.Extension,
-					file.Types.JSON.Extension,
-				},
-				Default: file.Types.YAML.Extension,
-			},
+			Name:   "dependency",
+			Usage:  "Setup product software dependency, such as git, docker, etc.",
+			Action: addDependency,
 		},
-	}
+		{
+			Name:   "provider",
+			Usage:  "Add provider to application(s)",
+			Action: addProvider,
+		},
+	},
+}
 
-	err := survey.Ask(prompt, &answers)
-	if err != nil {
-		fmt.Println(err.Error())
+func addApplication(c *cli.Context) error {
+	exists, ft := checkForProductFile()
+	if !exists {
+		return cli.NewExitError(missingFileText, 1)
 	}
-	ft := file.Types.YAML
-	for _, fileType := range file.TypeList {
-		if fileType.Extension == answers.Extension {
-			ft = fileType
-			break
-		}
+	a := addApplicationPrompt()
+	pm := product.NewProductModel(ft)
+	pm.LoadProduct()
+	pm.AddApplication(a)
+	return nil
+}
+
+func addDependency(c *cli.Context) error {
+	exists, ft := checkForProductFile()
+	if !exists {
+		return cli.NewExitError(missingFileText, 1)
 	}
-	return &product.Product{
-		Name:        name,
-		Description: answers.Description,
-	}, ft
+	d := addDependencyPrompt()
+	pm := product.NewProductModel(ft)
+	pm.LoadProduct()
+	pm.AddDependency(d)
+	return nil
+}
+
+func addProvider(c *cli.Context) error {
+	exists, ft := checkForProductFile()
+	if !exists {
+		return cli.NewExitError(missingFileText, 1)
+	}
+	pm := product.NewProductModel(ft)
+	product := pm.LoadProduct()
+	applications := addProviderPrompt(product.Applications)
+	pm.UpdateApplications(applications)
+	return nil
 }
 
 func addApplicationPrompt() *product.Application {
@@ -128,7 +142,7 @@ func addDependencyPrompt() *product.Dependency {
 
 func addProviderPrompt(applications []*product.Application) []*product.Application {
 	color.Yellow("Well get a provider added to an applicationn")
-	selectedApp := selectApplication(applications)
+	selectedApp := selectApplicationPrompt(applications)
 
 	var providerOptions []string
 	for _, providerType := range provider.TypeList {
@@ -167,7 +181,7 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 	return applications
 }
 
-func selectApplication(applications []*product.Application) *product.Application {
+func selectApplicationPrompt(applications []*product.Application) *product.Application {
 	var appIndex int
 	var appOptions []string
 	for _, app := range applications {
