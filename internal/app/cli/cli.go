@@ -50,35 +50,9 @@ func StartCli(args []string) error {
 		{
 			Name:      "run",
 			Category:  "Develop",
-			Usage:     "Runs defined application commands",
+			Usage:     "Runs command for applications that have it defined",
 			ArgsUsage: "<cmd> [applications]",
-			// TODO lets read the commands from the strut file and set this up dynamically
-			Subcommands: []cli.Command{
-				{
-					Name:  "install",
-					Usage: "Runs defined install commands",
-					Action: func(c *cli.Context) error {
-						fmt.Println("new task template: ", c.Args().First())
-						return nil
-					},
-				},
-				{
-					Name:  "build",
-					Usage: "Runs defined build commands",
-					Action: func(c *cli.Context) error {
-						fmt.Println("new task template: ", c.Args().First())
-						return nil
-					},
-				},
-				{
-					Name:  "start",
-					Usage: "Runs defined start commands",
-					Action: func(c *cli.Context) error {
-						fmt.Println("new task template: ", c.Args().First())
-						return nil
-					},
-				},
-			},
+			Action:    runCommand,
 		},
 		{
 			Name:      "provision",
@@ -156,5 +130,25 @@ func addProvider(c *cli.Context) error {
 	product := pm.LoadProduct()
 	applications := addProviderPrompt(product.Applications)
 	pm.UpdateApplications(applications)
+	return nil
+}
+
+func runCommand(c *cli.Context) error {
+	exists, ft := checkForProductFile()
+	if !exists {
+		return cli.NewExitError(missingFileText, 1)
+	}
+	pm := product.NewProductModel(ft)
+	product := pm.LoadProduct()
+	cmd := c.Args().First()
+	if cmd == "" {
+		return cli.NewExitError("Specify command", 1)
+	}
+	for _, app := range product.Applications {
+		if app.LocalConfig.Commands == nil {
+			continue
+		}
+		// run defined app command
+	}
 	return nil
 }
