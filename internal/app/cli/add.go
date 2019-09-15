@@ -171,7 +171,7 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 			if hasProvider {
 				color.Red("%s: already has provider: %s", app.Name, selectedProviderType.Name)
 			} else {
-				app.Providers = append(app.Providers, &product.Provider{
+				app.Providers = append(app.Providers, &provider.Provider{
 					Type: selectedProviderType,
 				})
 				break

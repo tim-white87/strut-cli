@@ -19,11 +19,11 @@ type Dependency struct {
 
 // Application Application defined in the product
 type Application struct {
-	Name        string       `json:"name"`
-	Version     string       `json:"version"`
-	Repository  *Repository  `json:"repository"`
-	LocalConfig *LocalConfig `json:"localConfig"`
-	Providers   []*Provider  `json:"providers"`
+	Name        string               `json:"name"`
+	Version     string               `json:"version"`
+	Repository  *Repository          `json:"repository"`
+	LocalConfig *LocalConfig         `json:"localConfig"`
+	Providers   []*provider.Provider `json:"providers"`
 }
 
 // Repository Application repository
@@ -46,25 +46,4 @@ type LocalCommandRegistry struct {
 	Build    []string `json:"build"`
 	Start    []string `json:"start"`
 	Deploy   []string `json:"deploy"`
-}
-
-// Provider Hosted application provider
-type Provider struct {
-	Type      *provider.Type `json:"type"`
-	Resources *[]Resource    `json:"resources"`
-	*ResourceCommands
-}
-
-// Resource Provider resource (i.e. cloudformation)
-type Resource struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-	Body string `json:"body,omitempty"`
-	*ResourceCommands
-}
-
-// ResourceCommands Custom resource commands
-type ResourceCommands struct {
-	PreProvision  []string `json:"preProvision"`
-	PostProvision []string `json:"postProvision"`
 }
