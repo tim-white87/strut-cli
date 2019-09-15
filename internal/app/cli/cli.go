@@ -21,6 +21,7 @@ var commands = []cli.Command{
 func StartCli(args []string) error {
 	app := cli.NewApp()
 	app.Name = "strut"
+	app.Usage = "cli for managing strut apps"
 	app.Description = "Utility for setting up and running strut based products"
 	app.Commands = commands
 	sort.Sort(cli.CommandsByName(app.Commands))
