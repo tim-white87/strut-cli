@@ -152,10 +152,9 @@ func runCommand(c *cli.Context) error {
 		if app.LocalConfig.Commands == nil {
 			continue
 		}
-		field, ok := reflect.TypeOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd))
-		if ok {
-			fmt.Println(field)
-		}
+		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd))
+		fmt.Println(appCmds)
+
 	}
 	return nil
 }
