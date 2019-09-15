@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"reflect"
 	"sort"
 	"strings"
@@ -152,11 +153,21 @@ func runCommand(c *cli.Context) error {
 		if app.LocalConfig.Commands == nil {
 			continue
 		}
+		err := os.Chdir(app.LocalConfig.Path)
+		if err != nil {
+			color.Red("Error >>> app: %s, local path: %s", app.Name, app.LocalConfig.Path)
+			color.Red("%s", err)
+			return nil
+		}
 		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
 
 		for _, appCmd := range appCmds {
-			fmt.Println(appCmd)
-			// exec.Command(appCmd)
+			parts := strings.Fields(appCmd)
+			data, err := exec.Command(parts[0], parts[1:]...).Output()
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(data))
 		}
 	}
 	return nil
