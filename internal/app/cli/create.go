@@ -6,6 +6,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
+	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
 
@@ -19,7 +20,8 @@ var createCmd = cli.Command{
 
 func create(c *cli.Context) error {
 	if exists, _ := checkForProductFile(); exists {
-		return cli.NewExitError("Product file already exists in folder.", 1)
+		color.Red("Product file already exists in folder.")
+		return nil
 	}
 	name := ""
 	if c != nil {

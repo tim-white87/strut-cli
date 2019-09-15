@@ -38,7 +38,8 @@ var addCmd = cli.Command{
 func addApplication(c *cli.Context) error {
 	exists, ft := checkForProductFile()
 	if !exists {
-		return cli.NewExitError(missingFileText, 1)
+		color.Red(missingFileText)
+		return nil
 	}
 	a := addApplicationPrompt()
 	pm := product.NewProductModel(ft)

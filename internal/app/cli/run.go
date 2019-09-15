@@ -23,7 +23,8 @@ var runCmd = cli.Command{
 func runCommand(c *cli.Context) error {
 	exists, ft := checkForProductFile()
 	if !exists {
-		return cli.NewExitError(missingFileText, 1)
+		color.Red(missingFileText)
+		return nil
 	}
 	pm := product.NewProductModel(ft)
 	product := pm.LoadProduct()
