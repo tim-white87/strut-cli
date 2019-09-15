@@ -27,9 +27,10 @@ type Provider struct {
 
 // Resource Provider resource (i.e. cloudformation)
 type Resource struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-	Body string `json:"body,omitempty"`
+	Name     string `json:"name"`
+	Path     string `json:"path"`
+	Body     string `json:"body,omitempty"`
+	Priority int    `json:"priority,omitempty"`
 	*ResourceCommands
 }
 
