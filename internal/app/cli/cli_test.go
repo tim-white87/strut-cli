@@ -29,7 +29,7 @@ func TestCreate(t *testing.T) {
 	err := create(c)
 
 	if err == nil {
-		t.Fatalf("Expected exit error since if there already is a product file.")
+		t.Fatalf("Expected exit error since there already is a product file.")
 	}
 
 	if _, yerr := os.Stat("./strut.yaml"); !os.IsNotExist(yerr) {

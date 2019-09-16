@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/cecotw/strut-cli/internal/app/product"
+	"github.com/cecotw/strut-cli/internal/pkg/provider"
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
@@ -22,8 +25,26 @@ func provision(c *cli.Context) error {
 	}
 	pm := product.NewProductModel(ft)
 	product := pm.LoadProduct()
-	for _, app := range product.Applications {
-		color.Green(app.Name)
+
+	provisionMap := mapProviderResources(product.Applications)
+
+	for key, val := range provisionMap {
+		fmt.Println(key, val)
 	}
 	return nil
+}
+
+func mapProviderResources(applications []*product.Application) map[string]map[int][]*provider.Resource {
+	provisionMap := make(map[string]map[int][]*provider.Resource)
+
+	for _, app := range applications {
+		for _, p := range app.Providers {
+			resourceMap := make(map[int][]*provider.Resource)
+			provisionMap[p.Type.Name] = resourceMap
+			for _, r := range p.Resources {
+				resourceMap[r.Priority] = append(resourceMap[r.Priority], r)
+			}
+		}
+	}
+	return provisionMap
 }

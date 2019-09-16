@@ -21,7 +21,7 @@ type Type struct {
 // Provider Hosted application provider
 type Provider struct {
 	Type      *Type       `json:"type"`
-	Resources *[]Resource `json:"resources"`
+	Resources []*Resource `json:"resources"`
 	*ResourceCommands
 }
 
