@@ -47,3 +47,8 @@ type Model interface {
 	Destroy()
 	CheckStatus()
 }
+
+// ProvisionResources initiates resource provisioning of provider map
+func ProvisionResources(provisionMap map[string]map[int][]*Resource) {
+
+}
