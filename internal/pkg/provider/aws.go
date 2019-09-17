@@ -7,7 +7,7 @@ func NewAwsModel() Model {
 	return &awsModel{}
 }
 
-func (m *awsModel) Provision() {
+func (m *awsModel) Provision(resources []*Resource) {
 
 }
 

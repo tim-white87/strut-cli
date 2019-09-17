@@ -38,14 +38,19 @@ type ResourceCommands struct {
 
 // Model provider model interface
 type Model interface {
-	Provision()
+	Provision([]*Resource)
 	Destroy()
 	CheckStatus()
 }
 
 // ProvisionResources initiates resource provisioning of provider map
 func ProvisionResources(provisionMap map[string]map[int][]*Resource) {
-	// for provider, resources := range provisionMap {
+	for provider, resourcesMap := range provisionMap {
+		model := ModelsMap[provider]
+		// TODO batch each priority group with concurrency
+		// model.Provision(resources)
 
-	// }
+		// TODO run 0 items last
+		model.Provision(resourcesMap[0])
+	}
 }
