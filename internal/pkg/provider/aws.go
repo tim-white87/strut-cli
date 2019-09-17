@@ -7,10 +7,6 @@ func NewAwsModel() Model {
 	return &awsModel{}
 }
 
-func (m *awsModel) Load(p *Provider) {
-
-}
-
 func (m *awsModel) Provision() {
 
 }

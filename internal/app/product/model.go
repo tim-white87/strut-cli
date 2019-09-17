@@ -114,7 +114,7 @@ func (m *model) mapProviderResources() {
 	for _, app := range m.Product.Applications {
 		for _, p := range app.Providers {
 			resourceMap := make(map[int][]*provider.Resource)
-			m.Product.ProvisionMap[p.Type.Name] = resourceMap
+			m.Product.ProvisionMap[p.Name] = resourceMap
 			for _, r := range p.Resources {
 				resourceMap[r.Priority] = append(resourceMap[r.Priority], r)
 			}

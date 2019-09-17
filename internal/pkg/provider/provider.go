@@ -1,26 +1,22 @@
 package provider
 
+// ModelsMap Maps provider name to model
+var ModelsMap = map[string]Model{
+	Types.AWS: NewAwsModel(),
+}
+
 // Types provider types
 var Types = &providerRegistry{
-	AWS: &Type{Name: "AWS"},
+	AWS: "AWS",
 }
-
-// TypeList list of types
-var TypeList = []*Type{Types.AWS}
 
 type providerRegistry struct {
-	AWS *Type
-}
-
-// Type Provider type
-type Type struct {
-	Name  string
-	Model Model `json:"-"`
+	AWS string
 }
 
 // Provider Hosted application provider
 type Provider struct {
-	Type      *Type       `json:"type"`
+	Name      string      `json:"name"`
 	Resources []*Resource `json:"resources"`
 	*ResourceCommands
 }
@@ -42,7 +38,6 @@ type ResourceCommands struct {
 
 // Model provider model interface
 type Model interface {
-	Load(*Provider)
 	Provision()
 	Destroy()
 	CheckStatus()
@@ -50,5 +45,7 @@ type Model interface {
 
 // ProvisionResources initiates resource provisioning of provider map
 func ProvisionResources(provisionMap map[string]map[int][]*Resource) {
+	// for provider, resources := range provisionMap {
 
+	// }
 }

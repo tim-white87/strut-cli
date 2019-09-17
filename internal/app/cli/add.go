@@ -146,33 +146,32 @@ func addProviderPrompt(applications []*product.Application) []*product.Applicati
 	selectedApp := selectApplicationPrompt(applications)
 
 	var providerOptions []string
-	for _, providerType := range provider.TypeList {
-		providerOptions = append(providerOptions, providerType.Name)
+	for providerName := range provider.ModelsMap {
+		providerOptions = append(providerOptions, providerName)
 	}
-	var providerIndex int
+	var selectedProvider string
 	prompt := &survey.Select{
 		Message: "Select provider type:",
 		Options: providerOptions,
 	}
-	err := survey.AskOne(prompt, &providerIndex)
+	err := survey.AskOne(prompt, &selectedProvider)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	selectedProviderType := provider.TypeList[providerIndex]
 	for _, app := range applications {
 		if app.Name == selectedApp.Name {
 			hasProvider := false
 			for _, provider := range app.Providers {
-				if provider.Type.Name == selectedProviderType.Name {
+				if provider.Name == selectedProvider {
 					hasProvider = true
 					break
 				}
 			}
 			if hasProvider {
-				color.Red("%s: already has provider: %s", app.Name, selectedProviderType.Name)
+				color.Red("%s: already has provider: %s", app.Name, selectedProvider)
 			} else {
 				app.Providers = append(app.Providers, &provider.Provider{
-					Type: selectedProviderType,
+					Name: selectedProvider,
 				})
 				break
 			}
