@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/cecotw/strut-cli/internal/pkg/file"
+	"github.com/cecotw/strut-cli/internal/pkg/provider"
 	"github.com/ghodss/yaml"
 )
 
@@ -44,6 +45,9 @@ func (m *model) LoadProduct() *Product {
 		m.parseFile(data)
 	} else {
 		m.SaveProduct(m.Product)
+	}
+	if m.Product.Applications != nil {
+		m.mapProviderResources()
 	}
 	return m.Product
 }
@@ -101,5 +105,19 @@ func (m *model) parseFile(data []byte) {
 		json.Unmarshal(data, m.Product)
 	case file.Types.YAML:
 		yaml.Unmarshal(data, m.Product)
+	}
+}
+
+func (m *model) mapProviderResources() {
+	m.Product.ProvisionMap = make(map[string]map[int][]*provider.Resource)
+
+	for _, app := range m.Product.Applications {
+		for _, p := range app.Providers {
+			resourceMap := make(map[int][]*provider.Resource)
+			m.Product.ProvisionMap[p.Type.Name] = resourceMap
+			for _, r := range p.Resources {
+				resourceMap[r.Priority] = append(resourceMap[r.Priority], r)
+			}
+		}
 	}
 }
