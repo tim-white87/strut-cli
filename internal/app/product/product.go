@@ -24,7 +24,7 @@ type Application struct {
 	Version     string               `json:"version"`
 	Repository  *Repository          `json:"repository"`
 	LocalConfig *LocalConfig         `json:"localConfig"`
-	Resources   []*provider.Resource `json:"resource"`
+	Resources   []*provider.Resource `json:"resources"`
 }
 
 // Repository Application repository
