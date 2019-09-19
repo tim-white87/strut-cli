@@ -1,6 +1,11 @@
 package provider
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/cecotw/strut-cli/internal/pkg/file"
+	"github.com/fatih/color"
+)
 
 type awsModel struct{}
 
@@ -10,7 +15,11 @@ func NewAwsModel() Model {
 }
 
 func (m *awsModel) Provision(r *Resource) {
-	fmt.Println(r)
+	resourceData, err := file.ReadFilePath(r.Path)
+	if err != nil {
+		color.Red("Issue reading resrouce file path. Path: %s", r.Path)
+	}
+	fmt.Println(resourceData)
 }
 
 func (m *awsModel) Destroy(r *Resource) {

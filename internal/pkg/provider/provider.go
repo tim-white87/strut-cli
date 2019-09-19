@@ -61,7 +61,6 @@ func Provision(provisionMap map[string]map[int][]*Resource) {
 
 func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
 	defer wg.Done()
-
 	model := ModelsMap[p]
 	keys := make([]int, len(rm))
 	for k := range rm {

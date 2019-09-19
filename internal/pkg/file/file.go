@@ -34,7 +34,15 @@ type Model struct {
 	FileType *Type
 }
 
-// WriteFile Writes the product file in JSON or YAML to the CWD
+// ReadFilePath Reads the file at the specified path
+func ReadFilePath(path string) ([]byte, error) {
+	fileData, err := os.Open(path)
+	defer fileData.Close()
+	data, err := ioutil.ReadAll(fileData)
+	return data, err
+}
+
+// WriteFile Writes the a file in JSON or YAML to the CWD
 func (m *Model) WriteFile(name string, fileData interface{}) ([]byte, error) {
 	var fileName = fmt.Sprintf("%s.%s", name, m.FileType.Extension)
 	var data []byte
@@ -49,7 +57,7 @@ func (m *Model) WriteFile(name string, fileData interface{}) ([]byte, error) {
 	return m.ReadFile(name)
 }
 
-// ReadFile Loads the product file from the CWD
+// ReadFile Reads the file with the set extension from the CWD
 func (m *Model) ReadFile(name string) ([]byte, error) {
 	fileData, err := os.Open(fmt.Sprintf("%s.%s", name, m.FileType.Extension))
 	defer fileData.Close()
