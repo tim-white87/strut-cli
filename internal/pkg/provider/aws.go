@@ -1,13 +1,13 @@
 package provider
 
 import (
-	"fmt"
-
 	"github.com/cecotw/strut-cli/internal/pkg/file"
 	"github.com/fatih/color"
 )
 
-type awsModel struct{}
+type awsModel struct {
+	resource *Resource
+}
 
 // NewAwsModel AWS Model constructor
 func NewAwsModel() Model {
@@ -15,12 +15,13 @@ func NewAwsModel() Model {
 }
 
 func (m *awsModel) Provision(r *Resource) {
-	resourceData, err := file.ReadFilePath(r.Path)
+	m.resource = r
+	resourceData, err := file.ReadFilePath(m.resource.Path)
 	if err != nil {
-		color.Red("Issue reading resrouce file path. Path: %s", r.Path)
+		color.Red("Issue reading resrouce file path. Path: %s", m.resource.Path)
 	}
-	color.Green(r.Name)
-	fmt.Println(string(resourceData))
+	template := string(resourceData)
+	m.deployCloudFormationStack(template)
 }
 
 func (m *awsModel) Destroy(r *Resource) {
@@ -28,5 +29,9 @@ func (m *awsModel) Destroy(r *Resource) {
 }
 
 func (m *awsModel) CheckStatus() {
+
+}
+
+func (m *awsModel) deployCloudFormationStack(template string) {
 
 }

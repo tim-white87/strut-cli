@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 )
@@ -73,7 +72,6 @@ func provisionProvider(p string, rm []map[int][]*Resource, wg *sync.WaitGroup) {
 		resourceBatchWaitGroup := &sync.WaitGroup{}
 		resourceBatchWaitGroup.Add(len(resourceBatch))
 		defer resourceBatchWaitGroup.Wait()
-		fmt.Println(resourceBatch)
 		for _, resources := range resourceBatch {
 			go provisionResources(resources, model, resourceBatchWaitGroup)
 		}
