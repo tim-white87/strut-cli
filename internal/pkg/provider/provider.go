@@ -3,6 +3,8 @@ package provider
 import (
 	"sort"
 	"sync"
+
+	"github.com/fatih/color"
 )
 
 // ModelsMap Maps provider name to model
@@ -49,38 +51,42 @@ type Model interface {
 }
 
 // Provision initiates resource provisioning of provider map
-func Provision(provisionMap map[string][]map[int][]*Resource) {
+func Provision(provisionMap map[string]map[int][]*Resource) {
 	providersWg := &sync.WaitGroup{}
 	providersWg.Add(len(provisionMap))
 	defer providersWg.Wait()
 
 	for provider, resourcesMap := range provisionMap {
+		color.Green("Provision: %s", provider)
 		go provisionProvider(provider, resourcesMap, providersWg)
 	}
 }
 
-func provisionProvider(p string, rm []map[int][]*Resource, wg *sync.WaitGroup) {
+func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
 	defer wg.Done()
 	model := ModelsMap[p]
 	keys := make([]int, len(rm))
 	for k := range rm {
+		// if k != 0 {
 		keys[k] = k
+		// }
+
 	}
 	sort.Ints(keys)
+	// keys = append(keys, 0)
 	for key := range keys {
+		color.Green("Batch: %b", key)
 		resourceBatch := rm[key]
 		resourceBatchWaitGroup := &sync.WaitGroup{}
 		resourceBatchWaitGroup.Add(len(resourceBatch))
 		defer resourceBatchWaitGroup.Wait()
 		for _, resources := range resourceBatch {
-			go provisionResources(resources, model, resourceBatchWaitGroup)
+			go provisionResource(resources, model, resourceBatchWaitGroup)
 		}
 	}
 }
 
-func provisionResources(r []*Resource, m Model, wg *sync.WaitGroup) {
+func provisionResource(r *Resource, m Model, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for _, resource := range r {
-		m.Provision(resource)
-	}
+	m.Provision(r)
 }
