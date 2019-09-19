@@ -28,9 +28,9 @@ var addCmd = cli.Command{
 			Action: addDependency,
 		},
 		{
-			Name:   "provider",
-			Usage:  "Add provider to application(s)",
-			Action: addProvider,
+			Name:   "resource",
+			Usage:  "Add resource to application(s)",
+			Action: addResource,
 		},
 	},
 }
@@ -60,14 +60,14 @@ func addDependency(c *cli.Context) error {
 	return nil
 }
 
-func addProvider(c *cli.Context) error {
+func addResource(c *cli.Context) error {
 	exists, ft := checkForProductFile()
 	if !exists {
 		return cli.NewExitError(missingFileText, 1)
 	}
 	pm := product.NewProductModel(ft)
 	product := pm.LoadProduct()
-	applications := addProviderPrompt(product.Applications)
+	applications := addResourcePrompt(product.Applications)
 	pm.UpdateApplications(applications)
 	return nil
 }
@@ -141,38 +141,57 @@ func addDependencyPrompt() *product.Dependency {
 	}
 }
 
-func addProviderPrompt(applications []*product.Application) []*product.Application {
-	color.Yellow("Well get a provider added to an applicationn")
+func addResourcePrompt(applications []*product.Application) []*product.Application {
+	color.Yellow("Well get a resource added to an application")
 	selectedApp := selectApplicationPrompt(applications)
+
+	resource := &provider.Resource{Provider: &provider.Provider{}}
+	err := survey.Ask([]*survey.Question{
+		{
+			Name: "name",
+			Prompt: &survey.Input{
+				Message: "Enter resource name:",
+				Help:    "Unique name required as this gets deployed to a cloud provider",
+			},
+		},
+		{
+			Name: "path",
+			Prompt: &survey.Input{
+				Message: "Enter resource path:",
+				Help:    "Path should be relative to strut file or an absolute path.",
+			},
+		},
+	}, &resource)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	var providerOptions []string
 	for providerName := range provider.ModelsMap {
 		providerOptions = append(providerOptions, providerName)
 	}
-	var selectedProvider string
 	prompt := &survey.Select{
 		Message: "Select provider type:",
 		Options: providerOptions,
 	}
-	err := survey.AskOne(prompt, &selectedProvider)
+	err = survey.AskOne(prompt, &resource.Provider.Name)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	for _, app := range applications {
 		if app.Name == selectedApp.Name {
-			hasProvider := false
-			for _, provider := range app.Providers {
-				if provider.Name == selectedProvider {
-					hasProvider = true
+			hasResource := false
+			for _, r := range app.Resources {
+				if r.Name == resource.Name {
+					hasResource = true
 					break
 				}
 			}
-			if hasProvider {
-				color.Red("%s: already has provider: %s", app.Name, selectedProvider)
+			if hasResource {
+				color.Red("%s: already has resource: %s", app.Name, resource.Name)
 			} else {
-				app.Providers = append(app.Providers, &provider.Provider{
-					Name: selectedProvider,
-				})
+				app.Resources = append(app.Resources, resource)
 				break
 			}
 		}

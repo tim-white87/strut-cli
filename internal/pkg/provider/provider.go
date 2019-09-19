@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"sort"
 	"sync"
 
 	"github.com/fatih/color"
@@ -21,19 +20,19 @@ type providerRegistry struct {
 	AWS string
 }
 
-// Provider Hosted application provider
-type Provider struct {
-	Name      string      `json:"name"`
-	Resources []*Resource `json:"resources"`
+// Resource Provider resource (i.e. cloudformation)
+type Resource struct {
+	Name     string    `json:"name"`
+	Path     string    `json:"path"`
+	Body     string    `json:"body,omitempty"`
+	Priority int       `json:"priority,omitempty"`
+	Provider *Provider `json:"provider"`
 	*ResourceCommands
 }
 
-// Resource Provider resource (i.e. cloudformation)
-type Resource struct {
-	Name     string `json:"name"`
-	Path     string `json:"path"`
-	Body     string `json:"body,omitempty"`
-	Priority int    `json:"priority,omitempty"`
+// Provider Hosted application provider
+type Provider struct {
+	Name string `json:"name"`
 	*ResourceCommands
 }
 
@@ -51,42 +50,26 @@ type Model interface {
 }
 
 // Provision initiates resource provisioning of provider map
-func Provision(provisionMap map[string]map[int][]*Resource) {
-	providersWg := &sync.WaitGroup{}
-	providersWg.Add(len(provisionMap))
-	defer providersWg.Wait()
+func Provision(provisionMap map[int][]*Resource) {
+	batchWg := &sync.WaitGroup{}
+	batchWg.Add(len(provisionMap))
+	defer batchWg.Wait()
 
-	for provider, resourcesMap := range provisionMap {
-		color.Green("Provision: %s", provider)
-		go provisionProvider(provider, resourcesMap, providersWg)
+	for priority, batch := range provisionMap {
+		color.Green("Batch #: %b", priority)
+		go provisionBatch(batch, batchWg)
 	}
 }
 
-func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
+func provisionBatch(batch []*Resource, wg *sync.WaitGroup) {
 	defer wg.Done()
-	model := ModelsMap[p]
-	keys := make([]int, len(rm))
-	for k := range rm {
-		// if k != 0 {
-		keys[k] = k
-		// }
-
-	}
-	sort.Ints(keys)
-	// keys = append(keys, 0)
-	for key := range keys {
-		color.Green("Batch: %b", key)
-		resourceBatch := rm[key]
-		resourceBatchWaitGroup := &sync.WaitGroup{}
-		resourceBatchWaitGroup.Add(len(resourceBatch))
-		defer resourceBatchWaitGroup.Wait()
-		for _, resources := range resourceBatch {
-			go provisionResource(resources, model, resourceBatchWaitGroup)
-		}
+	for _, resource := range batch {
+		provisionResource(resource)
 	}
 }
 
-func provisionResource(r *Resource, m Model, wg *sync.WaitGroup) {
-	defer wg.Done()
-	m.Provision(r)
+func provisionResource(r *Resource) {
+	color.Green("Provisioning >>> Resource: %s on Provider: %s >>> ", r.Name, r.Provider.Name)
+	model := ModelsMap[r.Provider.Name]
+	model.Provision(r)
 }
