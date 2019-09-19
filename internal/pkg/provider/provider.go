@@ -72,14 +72,14 @@ func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
 		var resourceBatchWaitGroup *sync.WaitGroup
 		resourceBatchWaitGroup.Add(len(rm[key]))
 		defer resourceBatchWaitGroup.Wait()
-		resourceBatch := rm[key]
-		go provisionResourceBatch(resourceBatch, model, resourceBatchWaitGroup)
+		for _, resource := range rm[key] {
+			go provisionResource(resource, model, resourceBatchWaitGroup)
+		}
+
 	}
 }
 
-func provisionResourceBatch(rb []*Resource, m Model, wg *sync.WaitGroup) {
+func provisionResource(r *Resource, m Model, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for _, resource := range rb {
-		m.Provision(resource)
-	}
+	m.Provision(r)
 }
