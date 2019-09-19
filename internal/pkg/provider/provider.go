@@ -50,7 +50,7 @@ type Model interface {
 
 // Provision initiates resource provisioning of provider map
 func Provision(provisionMap map[string]map[int][]*Resource) {
-	var providersWg *sync.WaitGroup
+	providersWg := &sync.WaitGroup{}
 	providersWg.Add(len(provisionMap))
 	defer providersWg.Wait()
 
@@ -69,13 +69,13 @@ func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
 	}
 	sort.Ints(keys)
 	for key := range keys {
-		var resourceBatchWaitGroup *sync.WaitGroup
-		resourceBatchWaitGroup.Add(len(rm[key]))
+		resourceBatch := rm[key]
+		resourceBatchWaitGroup := &sync.WaitGroup{}
+		resourceBatchWaitGroup.Add(len(resourceBatch))
 		defer resourceBatchWaitGroup.Wait()
-		for _, resource := range rm[key] {
+		for _, resource := range resourceBatch {
 			go provisionResource(resource, model, resourceBatchWaitGroup)
 		}
-
 	}
 }
 
