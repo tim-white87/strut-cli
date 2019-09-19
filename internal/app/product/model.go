@@ -68,12 +68,11 @@ func (m *model) UpdateApplications(applications []*Application) {
 }
 
 func (m *model) mapProviderResources() {
-	m.Product.ProvisionMap = make(map[string]map[int][]*provider.Resource)
-
+	m.Product.ProvisionMap = make(map[string][]map[int][]*provider.Resource)
 	for _, app := range m.Product.Applications {
 		for _, p := range app.Providers {
 			resourceMap := make(map[int][]*provider.Resource)
-			m.Product.ProvisionMap[p.Name] = resourceMap
+			m.Product.ProvisionMap[p.Name] = append(m.Product.ProvisionMap[p.Name], resourceMap)
 			for _, r := range p.Resources {
 				resourceMap[r.Priority] = append(resourceMap[r.Priority], r)
 			}

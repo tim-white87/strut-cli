@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 )
@@ -49,7 +50,7 @@ type Model interface {
 }
 
 // Provision initiates resource provisioning of provider map
-func Provision(provisionMap map[string]map[int][]*Resource) {
+func Provision(provisionMap map[string][]map[int][]*Resource) {
 	providersWg := &sync.WaitGroup{}
 	providersWg.Add(len(provisionMap))
 	defer providersWg.Wait()
@@ -59,7 +60,7 @@ func Provision(provisionMap map[string]map[int][]*Resource) {
 	}
 }
 
-func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
+func provisionProvider(p string, rm []map[int][]*Resource, wg *sync.WaitGroup) {
 	defer wg.Done()
 	model := ModelsMap[p]
 	keys := make([]int, len(rm))
@@ -72,13 +73,16 @@ func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
 		resourceBatchWaitGroup := &sync.WaitGroup{}
 		resourceBatchWaitGroup.Add(len(resourceBatch))
 		defer resourceBatchWaitGroup.Wait()
-		for _, resource := range resourceBatch {
-			go provisionResource(resource, model, resourceBatchWaitGroup)
+		fmt.Println(resourceBatch)
+		for _, resources := range resourceBatch {
+			go provisionResources(resources, model, resourceBatchWaitGroup)
 		}
 	}
 }
 
-func provisionResource(r *Resource, m Model, wg *sync.WaitGroup) {
+func provisionResources(r []*Resource, m Model, wg *sync.WaitGroup) {
 	defer wg.Done()
-	m.Provision(r)
+	for _, resource := range r {
+		m.Provision(resource)
+	}
 }

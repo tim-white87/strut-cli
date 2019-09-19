@@ -19,7 +19,8 @@ func (m *awsModel) Provision(r *Resource) {
 	if err != nil {
 		color.Red("Issue reading resrouce file path. Path: %s", r.Path)
 	}
-	fmt.Println(resourceData)
+	color.Green(r.Name)
+	fmt.Println(string(resourceData))
 }
 
 func (m *awsModel) Destroy(r *Resource) {
