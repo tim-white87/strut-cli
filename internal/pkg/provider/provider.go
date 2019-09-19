@@ -69,7 +69,7 @@ func provisionBatch(batch []*Resource, wg *sync.WaitGroup) {
 }
 
 func provisionResource(r *Resource) {
-	color.Green("Provisioning >>> Resource: %s on Provider: %s", r.Name, r.Provider.Name)
+	color.Green("Provisioning >>> Resource: %s on Provider: %sd", r.Name, r.Provider.Name)
 	model := ModelsMap[r.Provider.Name]
 	model.Provision(r)
 }
