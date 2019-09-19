@@ -1,5 +1,10 @@
 package provider
 
+import (
+	"sort"
+	"sync"
+)
+
 // ModelsMap Maps provider name to model
 var ModelsMap = map[string]Model{
 	Types.AWS: NewAwsModel(),
@@ -39,27 +44,42 @@ type ResourceCommands struct {
 // Model provider model interface
 type Model interface {
 	Provision(*Resource)
-	Destroy()
+	Destroy(*Resource)
 	CheckStatus()
 }
 
-// ProvisionResources initiates resource provisioning of provider map
-func ProvisionResources(provisionMap map[string]map[int][]*Resource) {
-	// var providerWg *sync.WaitGroup
+// Provision initiates resource provisioning of provider map
+func Provision(provisionMap map[string]map[int][]*Resource) {
+	var providersWg *sync.WaitGroup
+	providersWg.Add(len(provisionMap))
+	defer providersWg.Wait()
+
 	for provider, resourcesMap := range provisionMap {
-		model := ModelsMap[provider]
-		// var resourceWg *sync.WaitGroup
-		// TODO batch each priority group with concurrency
-		// model.Provision(resources)
+		go provisionProvider(provider, resourcesMap, providersWg)
+	}
+}
 
-		// TODO run 0 items last
-		for _, resources := range resourcesMap {
-			for i := 0; i < len(resources); i++ {
-				model.Provision(resources[i])
-			}
-		}
+func provisionProvider(p string, rm map[int][]*Resource, wg *sync.WaitGroup) {
+	defer wg.Done()
 
-		// model.Provision(resourcesMap[0])
+	model := ModelsMap[p]
+	keys := make([]int, len(rm))
+	for k := range rm {
+		keys[k] = k
+	}
+	sort.Ints(keys)
+	for key := range keys {
+		var resourceBatchWaitGroup *sync.WaitGroup
+		resourceBatchWaitGroup.Add(len(rm[key]))
+		defer resourceBatchWaitGroup.Wait()
+		resourceBatch := rm[key]
+		go provisionResourceBatch(resourceBatch, model, resourceBatchWaitGroup)
+	}
+}
 
+func provisionResourceBatch(rb []*Resource, m Model, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for _, resource := range rb {
+		m.Provision(resource)
 	}
 }

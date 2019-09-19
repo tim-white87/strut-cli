@@ -13,7 +13,7 @@ func (m *awsModel) Provision(r *Resource) {
 	fmt.Println(r)
 }
 
-func (m *awsModel) Destroy() {
+func (m *awsModel) Destroy(r *Resource) {
 
 }
 

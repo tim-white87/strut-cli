@@ -24,6 +24,6 @@ func provision(c *cli.Context) error {
 	pm := product.NewProductModel(ft)
 	product := pm.LoadProduct()
 
-	provider.ProvisionResources(product.ProvisionMap)
+	provider.Provision(product.ProvisionMap)
 	return nil
 }
