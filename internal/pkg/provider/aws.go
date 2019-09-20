@@ -93,6 +93,7 @@ func (m *awsModel) deployCloudFormationStack(template string) {
 	case Status.Failed:
 		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 	}
+	m.monitorStackResourcesStatus()
 }
 
 func (m *awsModel) getStacks() {
@@ -106,3 +107,5 @@ func (m *awsModel) getStacks() {
 		m.stack = stackOutput.Stacks[0]
 	}
 }
+
+func (m *awsModel) monitorStackResourcesStatus() {}
