@@ -46,7 +46,7 @@ type ResourceCommands struct {
 type Model interface {
 	Provision(*Resource)
 	Destroy(*Resource)
-	CheckStatus()
+	CheckStatus() bool
 }
 
 // Provision initiates resource provisioning of provider map
