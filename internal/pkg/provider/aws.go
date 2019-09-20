@@ -66,11 +66,9 @@ func (m *awsModel) CheckStatus() bool {
 }
 
 func (m *awsModel) deployCloudFormationStack(template string) {
-	m.CheckStatus()
+	if m.CheckStatus() {
 
-	//  resourceExists := false
-
-	// if resourceExists
+	}
 }
 
 func (m *awsModel) getStacks() {
