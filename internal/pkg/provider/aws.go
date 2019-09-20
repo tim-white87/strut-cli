@@ -10,35 +10,68 @@ import (
 )
 
 type awsModel struct {
-	resource  *Resource
 	session   *session.Session
+	resource  *Resource
+	template  string
 	cfService *cloudformation.CloudFormation
 	stack     *cloudformation.Stack
 }
 
 // NewAwsModel AWS Model constructor
-func NewAwsModel() Model {
+func NewAwsModel(r *Resource) Model {
 	session := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
+	resourceData, err := file.ReadFilePath(r.Path)
+	if err != nil {
+		color.Red("Issue reading resrouce file path. Path: %s", r.Path)
+	}
+	template := string(resourceData)
 	return &awsModel{
 		session:   session,
+		resource:  r,
+		template:  template,
 		cfService: cloudformation.New(session),
 	}
 }
 
-func (m *awsModel) Provision(r *Resource) {
-	m.resource = r
-	resourceData, err := file.ReadFilePath(m.resource.Path)
-	if err != nil {
-		color.Red("Issue reading resrouce file path. Path: %s", m.resource.Path)
+var iamCapability = "CAPABILITY_NAMED_IAM"
+var cababilities = []*string{&iamCapability}
+
+func (m *awsModel) Provision() {
+	switch m.CheckStatus() {
+	case Status.NotFound:
+		color.Green("Creating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
+		m.cfService.CreateStack(&cloudformation.CreateStackInput{
+			StackName:    &m.resource.Name,
+			Capabilities: cababilities,
+			TemplateBody: &m.template,
+		})
+	case Status.Complete:
+		color.Green("Updating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
+		m.cfService.UpdateStack(&cloudformation.UpdateStackInput{
+			StackName:    &m.resource.Name,
+			Capabilities: cababilities,
+			TemplateBody: &m.template,
+		})
+	case Status.InProgress:
+		color.Yellow("Changes in progress")
+	case Status.Failed:
+		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 	}
-	template := string(resourceData)
-	m.deployCloudFormationStack(template)
+	m.monitorStackResourcesStatus()
 }
 
-func (m *awsModel) Destroy(r *Resource) {
+func (m *awsModel) Destroy() {
+	switch m.CheckStatus() {
+	case Status.NotFound:
 
+	case Status.Complete:
+
+	case Status.InProgress:
+
+	case Status.Failed:
+	}
 }
 
 func (m *awsModel) CheckStatus() string {
@@ -79,33 +112,6 @@ func (m *awsModel) CheckStatus() string {
 		color.Red("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
 	}
 	return Status.Failed
-}
-
-var iamCapability = "CAPABILITY_NAMED_IAM"
-var cababilities = []*string{&iamCapability}
-
-func (m *awsModel) deployCloudFormationStack(template string) {
-	switch m.CheckStatus() {
-	case Status.NotFound:
-		color.Green("Creating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
-		m.cfService.CreateStack(&cloudformation.CreateStackInput{
-			StackName:    &m.resource.Name,
-			Capabilities: cababilities,
-			TemplateBody: &template,
-		})
-	case Status.Complete:
-		color.Green("Updating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
-		m.cfService.UpdateStack(&cloudformation.UpdateStackInput{
-			StackName:    &m.resource.Name,
-			Capabilities: cababilities,
-			TemplateBody: &template,
-		})
-	case Status.InProgress:
-		color.Yellow("Changes in progress")
-	case Status.Failed:
-		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
-	}
-	m.monitorStackResourcesStatus()
 }
 
 func (m *awsModel) getStacks() {

@@ -8,7 +8,7 @@ import (
 )
 
 // ModelsMap Maps provider name to model
-var ModelsMap = map[string]func() Model{
+var ModelsMap = map[string]func(*Resource) Model{
 	Types.AWS: NewAwsModel,
 }
 
@@ -60,8 +60,8 @@ type ResourceCommands struct {
 
 // Model provider model interface
 type Model interface {
-	Provision(*Resource)
-	Destroy(*Resource)
+	Provision()
+	Destroy()
 	CheckStatus() string
 }
 
@@ -109,8 +109,8 @@ func provisionBatch(batch []*Resource, priority int) {
 
 func provisionResource(r *Resource, wg *sync.WaitGroup) {
 	defer wg.Done()
-	model := ModelsMap[r.Provider.Name]()
-	model.Provision(r)
+	model := ModelsMap[r.Provider.Name](r)
+	model.Provision()
 }
 
 // Destroy blows up the infrastructure in the cloud
@@ -138,6 +138,6 @@ func destroyBatch(batch []*Resource, priority int) {
 
 func destroyResource(r *Resource, wg *sync.WaitGroup) {
 	defer wg.Done()
-	model := ModelsMap[r.Provider.Name]()
-	model.Destroy(r)
+	model := ModelsMap[r.Provider.Name](r)
+	model.Destroy()
 }
