@@ -100,3 +100,8 @@ func provisionResource(r *Resource, wg *sync.WaitGroup) {
 	model := ModelsMap[r.Provider.Name]()
 	model.Provision(r)
 }
+
+// Destroy blows up the infrastructure in the cloud
+func Destroy(provisionMap map[int][]*Resource) {
+
+}
