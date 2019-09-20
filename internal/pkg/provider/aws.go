@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
@@ -59,6 +61,16 @@ func (m *awsModel) CheckStatus() string {
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusReviewInProgress {
 		color.Yellow("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		stackResources, err := m.cfService.DescribeStackResources(&cloudformation.DescribeStackResourcesInput{
+			StackName: m.stack.StackName,
+		})
+		if err != nil {
+			color.Red(err.Error())
+		}
+		for _, stackResource := range stackResources.StackResources {
+			color.HiBlack("Resource >>> Status: %s", *stackResource.ResourceStatus)
+		}
+
 		return Status.InProgress
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackFailed ||
@@ -108,4 +120,19 @@ func (m *awsModel) getStacks() {
 	}
 }
 
-func (m *awsModel) monitorStackResourcesStatus() {}
+func (m *awsModel) monitorStackResourcesStatus() {
+loop:
+	for {
+		time.Sleep(time.Second)
+		switch m.CheckStatus() {
+		case Status.NotFound:
+			break loop
+		case Status.Complete:
+			break loop
+		case Status.InProgress:
+
+		case Status.Failed:
+			break loop
+		}
+	}
+}
