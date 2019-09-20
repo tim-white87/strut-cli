@@ -67,7 +67,9 @@ func (m *awsModel) Destroy() {
 	case Status.NotFound:
 
 	case Status.Complete:
-
+		m.cfService.DeleteStack(&cloudformation.DeleteStackInput{
+			StackName: m.stack.StackName,
+		})
 	case Status.InProgress:
 
 	case Status.Failed:
