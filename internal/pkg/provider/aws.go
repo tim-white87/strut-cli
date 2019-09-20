@@ -45,7 +45,7 @@ func (m *awsModel) CheckStatus() bool {
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteComplete {
-		color.Green("Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.Green("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
 		return true
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackInProgress ||
@@ -55,12 +55,12 @@ func (m *awsModel) CheckStatus() bool {
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusReviewInProgress {
-		color.Yellow("Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.Yellow("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackFailed {
-		color.Red("Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.Red("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
 	}
 	return false
 }
