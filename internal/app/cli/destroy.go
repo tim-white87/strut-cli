@@ -33,6 +33,9 @@ func destroy(c *cli.Context) error {
 
 func confrimDestroyPrompt() bool {
 	reallyNuke := false
-	survey.AskOne(&survey.Confirm{Message: "Are you sure? This will nuke your shit."}, reallyNuke)
+	err := survey.AskOne(&survey.Confirm{Message: "Are you sure? This will nuke your shit."}, &reallyNuke)
+	if err != nil {
+		color.Red(err.Error())
+	}
 	return reallyNuke
 }
