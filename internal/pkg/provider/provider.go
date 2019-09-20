@@ -65,8 +65,7 @@ type Model interface {
 	CheckStatus() string
 }
 
-// Provision initiates resource provisioning of provider map
-func Provision(provisionMap map[int][]*Resource) {
+func sortProvisionMap(provisionMap map[int][]*Resource) []int {
 	keys := make([]int, 0)
 	for k := range provisionMap {
 		if k != 0 {
@@ -75,6 +74,19 @@ func Provision(provisionMap map[int][]*Resource) {
 	}
 	sort.Ints(keys)
 	keys = append(keys, 0)
+	return keys
+}
+
+func reverseInts(input []int) []int {
+	if len(input) == 0 {
+		return input
+	}
+	return append(reverseInts(input[1:]), input[0])
+}
+
+// Provision initiates resource provisioning of provider map
+func Provision(provisionMap map[int][]*Resource) {
+	keys := sortProvisionMap(provisionMap)
 	for _, priority := range keys {
 		batch := provisionMap[priority]
 		provisionBatch(batch, priority)
@@ -103,5 +115,29 @@ func provisionResource(r *Resource, wg *sync.WaitGroup) {
 
 // Destroy blows up the infrastructure in the cloud
 func Destroy(provisionMap map[int][]*Resource) {
+	keys := reverseInts(sortProvisionMap(provisionMap))
+	for _, priority := range keys {
+		batch := provisionMap[priority]
+		destroyBatch(batch, priority)
+	}
+}
 
+func destroyBatch(batch []*Resource, priority int) {
+	if priority == 0 {
+		color.HiBlack("Batch >>> Final")
+	} else {
+		color.HiBlack("Batch >>> Priority: #%b", priority)
+	}
+	resourceWg := &sync.WaitGroup{}
+	resourceWg.Add(len(batch))
+	defer resourceWg.Wait()
+	for _, resource := range batch {
+		go destroyResource(resource, resourceWg)
+	}
+}
+
+func destroyResource(r *Resource, wg *sync.WaitGroup) {
+	defer wg.Done()
+	model := ModelsMap[r.Provider.Name]()
+	model.Destroy(r)
 }
