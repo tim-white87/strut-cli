@@ -51,18 +51,13 @@ type Model interface {
 
 // Provision initiates resource provisioning of provider map
 func Provision(provisionMap map[int][]*Resource) {
-	batchWg := &sync.WaitGroup{}
-	batchWg.Add(len(provisionMap))
-	defer batchWg.Wait()
-
 	for priority, batch := range provisionMap {
-		color.Green("Batch #: %b", priority)
-		go provisionBatch(batch, batchWg)
+		provisionBatch(batch, priority)
 	}
 }
 
-func provisionBatch(batch []*Resource, wg *sync.WaitGroup) {
-	defer wg.Done()
+func provisionBatch(batch []*Resource, priority int) {
+	color.Green("Batch #: %b", priority)
 	resourceWg := &sync.WaitGroup{}
 	resourceWg.Add(len(batch))
 	defer resourceWg.Wait()
