@@ -83,5 +83,4 @@ func (m *awsModel) getStacks() {
 	if len(stackOutput.Stacks) > 0 {
 		m.stack = stackOutput.Stacks[0]
 	}
-
 }

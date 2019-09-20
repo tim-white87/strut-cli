@@ -7,8 +7,8 @@ import (
 )
 
 // ModelsMap Maps provider name to model
-var ModelsMap = map[string]Model{
-	Types.AWS: NewAwsModel(),
+var ModelsMap = map[string]func() Model{
+	Types.AWS: NewAwsModel,
 }
 
 // Types provider types
@@ -73,6 +73,6 @@ func provisionBatch(batch []*Resource, wg *sync.WaitGroup) {
 
 func provisionResource(r *Resource, wg *sync.WaitGroup) {
 	defer wg.Done()
-	model := ModelsMap[r.Provider.Name]
+	model := ModelsMap[r.Provider.Name]()
 	model.Provision(r)
 }
