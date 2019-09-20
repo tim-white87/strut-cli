@@ -39,14 +39,17 @@ func (m *awsModel) Destroy(r *Resource) {
 
 }
 
-func (m *awsModel) CheckStatus() bool {
+func (m *awsModel) CheckStatus() string {
 	m.getStacks()
+	if m.stack == nil {
+		return Status.NotFound
+	}
 	if *m.stack.StackStatus == cloudformation.StackStatusCreateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteComplete {
 		color.Green("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
-		return true
+		return Status.Complete
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteInProgress ||
@@ -56,20 +59,39 @@ func (m *awsModel) CheckStatus() bool {
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusReviewInProgress {
 		color.Yellow("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		return Status.InProgress
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackFailed {
 		color.Red("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
 	}
-	return false
+	return Status.Failed
 }
 
+var iamCapability = "CAPABILITY_NAMED_IAM"
+var cababilities = []*string{&iamCapability}
+
 func (m *awsModel) deployCloudFormationStack(template string) {
-	if m.CheckStatus() {
-		color.Green("Provisioning >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
-	} else {
-		color.Yellow("Attempting rollback >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
+	switch m.CheckStatus() {
+	case Status.NotFound:
+		color.Green("Creating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
+		m.cfService.CreateStack(&cloudformation.CreateStackInput{
+			StackName:    &m.resource.Name,
+			Capabilities: cababilities,
+			TemplateBody: &template,
+		})
+	case Status.Complete:
+		color.Green("Updating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
+		m.cfService.UpdateStack(&cloudformation.UpdateStackInput{
+			StackName:    &m.resource.Name,
+			Capabilities: cababilities,
+			TemplateBody: &template,
+		})
+	case Status.InProgress:
+		color.Yellow("Changes in progress")
+	case Status.Failed:
+		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 	}
 }
 

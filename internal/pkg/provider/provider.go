@@ -21,6 +21,21 @@ type providerRegistry struct {
 	AWS string
 }
 
+// Status status
+var Status = &statusRegistry{
+	"Complete",
+	"InProgress",
+	"Failed",
+	"NotFound",
+}
+
+type statusRegistry struct {
+	Complete   string
+	InProgress string
+	Failed     string
+	NotFound   string
+}
+
 // Resource Provider resource (i.e. cloudformation)
 type Resource struct {
 	Name     string    `json:"name"`
@@ -47,7 +62,7 @@ type ResourceCommands struct {
 type Model interface {
 	Provision(*Resource)
 	Destroy(*Resource)
-	CheckStatus() bool
+	CheckStatus() string
 }
 
 // Provision initiates resource provisioning of provider map
