@@ -16,6 +16,7 @@ var provisionCmd = cli.Command{
 }
 
 func provision(c *cli.Context) error {
+	color.HiBlack("Provisioning...")
 	exists, ft := checkForProductFile()
 	if !exists {
 		color.Red(missingFileText)

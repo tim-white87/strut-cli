@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/fatih/color"
@@ -51,13 +52,26 @@ type Model interface {
 
 // Provision initiates resource provisioning of provider map
 func Provision(provisionMap map[int][]*Resource) {
-	for priority, batch := range provisionMap {
+	keys := make([]int, 0)
+	for k := range provisionMap {
+		if k != 0 {
+			keys = append(keys, k)
+		}
+	}
+	sort.Ints(keys)
+	keys = append(keys, 0)
+	for _, priority := range keys {
+		batch := provisionMap[priority]
 		provisionBatch(batch, priority)
 	}
 }
 
 func provisionBatch(batch []*Resource, priority int) {
-	color.Green("Batch #: %b", priority)
+	if priority == 0 {
+		color.HiBlack("Batch >>> Final")
+	} else {
+		color.HiBlack("Batch >>> Priority: #%b", priority)
+	}
 	resourceWg := &sync.WaitGroup{}
 	resourceWg.Add(len(batch))
 	defer resourceWg.Wait()
