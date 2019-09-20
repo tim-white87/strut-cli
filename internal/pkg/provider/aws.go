@@ -1,24 +1,27 @@
 package provider
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/cecotw/strut-cli/internal/pkg/file"
 	"github.com/fatih/color"
 )
 
 type awsModel struct {
-	resource *Resource
-	session  *session.Session
+	resource  *Resource
+	session   *session.Session
+	cfService *cloudformation.CloudFormation
+	stack     *cloudformation.Stack
 }
 
 // NewAwsModel AWS Model constructor
 func NewAwsModel() Model {
+	session := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
 	return &awsModel{
-		session: session.Must(session.NewSessionWithOptions(session.Options{
-			SharedConfigState: session.SharedConfigEnable,
-		})),
+		session:   session,
+		cfService: cloudformation.New(session),
 	}
 }
 
@@ -37,9 +40,26 @@ func (m *awsModel) Destroy(r *Resource) {
 }
 
 func (m *awsModel) CheckStatus() {
-
+	m.getStacks()
 }
 
 func (m *awsModel) deployCloudFormationStack(template string) {
-	fmt.Println(m.session)
+	m.CheckStatus()
+	color.Green(*m.stack.StackStatus)
+	//  resourceExists := false
+
+	// if resourceExists
+}
+
+func (m *awsModel) getStacks() {
+	stackOutput, err := m.cfService.DescribeStacks(&cloudformation.DescribeStacksInput{
+		StackName: &m.resource.Name,
+	})
+	if err != nil {
+		color.Red(err.Error())
+	}
+	if len(stackOutput.Stacks) > 0 {
+		m.stack = stackOutput.Stacks[0]
+	}
+
 }
