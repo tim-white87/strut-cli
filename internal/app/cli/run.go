@@ -22,6 +22,8 @@ var runCmd = cli.Command{
 	Action:    runCommand,
 }
 
+var owd, _ = os.Getwd()
+
 func runCommand(c *cli.Context) error {
 	exists, ft := checkForProductFile()
 	if !exists {
@@ -35,33 +37,35 @@ func runCommand(c *cli.Context) error {
 		color.Red("Error >>> Specify command")
 		return nil
 	}
-	owd, _ := os.Getwd()
+
+	appWg := &sync.WaitGroup{}
+	appWg.Add(len(product.Applications))
+	defer appWg.Wait()
 	for _, app := range product.Applications {
 		if app.LocalConfig == nil || app.LocalConfig.Commands == nil {
 			continue
 		}
-		os.Chdir(owd)
-		err := os.Chdir(app.LocalConfig.Path)
-		if err != nil {
-			color.Red("Error >>> app: %s, local path: %s", app.Name, app.LocalConfig.Path)
-			color.Red(err.Error())
-			return nil
-		}
-		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
-		wg := &sync.WaitGroup{}
-		wg.Add(len(appCmds))
-		defer wg.Wait()
-		for _, appCmd := range appCmds {
-			go execute(appCmd, wg)
-		}
+		go runAppCommands(app, cmd, appWg)
 	}
 	return nil
 }
 
-func execute(appCmd string, wg *sync.WaitGroup) {
+func runAppCommands(app *product.Application, cmd string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
+	cwg := &sync.WaitGroup{}
+	cwg.Add(len(appCmds))
+	defer cwg.Wait()
+	for _, appCmd := range appCmds {
+		go execute(app.LocalConfig.Path, appCmd, cwg)
+	}
+}
+
+func execute(path string, appCmd string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	parts := strings.Fields(appCmd)
 	command := exec.Command(parts[0], parts[1:]...)
+	command.Dir = path
 	stdout, _ := command.StdoutPipe()
 	err := command.Start()
 	if err != nil {
