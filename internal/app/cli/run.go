@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"reflect"
@@ -33,10 +36,12 @@ func runCommand(c *cli.Context) error {
 		color.Red("Error >>> Specify command")
 		return nil
 	}
+	owd, _ := os.Getwd()
 	for _, app := range product.Applications {
-		if app.LocalConfig.Commands == nil {
+		if app.LocalConfig == nil || app.LocalConfig.Commands == nil {
 			continue
 		}
+		os.Chdir(owd)
 		err := os.Chdir(app.LocalConfig.Path)
 		if err != nil {
 			color.Red("Error >>> app: %s, local path: %s", app.Name, app.LocalConfig.Path)
@@ -47,12 +52,22 @@ func runCommand(c *cli.Context) error {
 
 		for _, appCmd := range appCmds {
 			parts := strings.Fields(appCmd)
-			data, err := exec.Command(parts[0], parts[1:]...).Output()
+			fmt.Println(parts)
+			command := exec.Command(parts[0], parts[1:]...)
+			stdout, _ := command.StdoutPipe()
+			err := command.Start()
 			if err != nil {
 				color.Red(err.Error())
-				return nil
 			}
-			fmt.Println(string(data))
+			scanner := bufio.NewScanner(stdout)
+			for scanner.Scan() {
+				m := scanner.Text()
+				fmt.Println(m)
+				log.Printf(m)
+			}
+			fmt.Println(ioutil.ReadAll(stdout))
+			command.Wait()
+
 		}
 	}
 	return nil
