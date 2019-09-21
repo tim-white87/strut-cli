@@ -28,8 +28,11 @@ func Execute(cmd *exec.Cmd, wg *sync.WaitGroup) {
 	if lookErr != nil {
 		panic(lookErr)
 	}
+	// fmt.Println(cmd.Path)
+	// os.Chdir(cmd.Path)
+	// fmt.Println(os.Getwd())
 	env := os.Environ()
-	execErr := syscall.Exec(binary, cmd.Args[1:], env)
+	execErr := syscall.Exec(binary, cmd.Args, env)
 	if execErr != nil {
 		panic(execErr)
 	}
