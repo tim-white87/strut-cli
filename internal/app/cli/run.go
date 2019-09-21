@@ -57,13 +57,14 @@ func runAppCommands(app *product.Application, cmd string, wg *sync.WaitGroup) {
 	cwg.Add(len(appCmds))
 	defer cwg.Wait()
 	for _, appCmd := range appCmds {
-		go execute(app.LocalConfig.Path, appCmd, cwg)
+		go Execute(app.LocalConfig.Path, appCmd, cwg)
 	}
 }
 
-func execute(path string, appCmd string, wg *sync.WaitGroup) {
+// Execute executes a command and logs with scanner
+func Execute(path string, cmd string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	parts := strings.Fields(appCmd)
+	parts := strings.Fields(cmd)
 	command := exec.Command(parts[0], parts[1:]...)
 	command.Dir = path
 	stdout, _ := command.StdoutPipe()
