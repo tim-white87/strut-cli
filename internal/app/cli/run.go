@@ -3,12 +3,11 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/cecotw/strut-cli/internal/app/product"
 	"github.com/fatih/color"
@@ -49,26 +48,29 @@ func runCommand(c *cli.Context) error {
 			return nil
 		}
 		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
-
+		wg := &sync.WaitGroup{}
+		wg.Add(len(appCmds))
+		defer wg.Wait()
 		for _, appCmd := range appCmds {
-			parts := strings.Fields(appCmd)
-			fmt.Println(parts)
-			command := exec.Command(parts[0], parts[1:]...)
-			stdout, _ := command.StdoutPipe()
-			err := command.Start()
-			if err != nil {
-				color.Red(err.Error())
-			}
-			scanner := bufio.NewScanner(stdout)
-			for scanner.Scan() {
-				m := scanner.Text()
-				fmt.Println(m)
-				log.Printf(m)
-			}
-			fmt.Println(ioutil.ReadAll(stdout))
-			command.Wait()
-
+			go execute(appCmd, wg)
 		}
 	}
 	return nil
+}
+
+func execute(appCmd string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	parts := strings.Fields(appCmd)
+	command := exec.Command(parts[0], parts[1:]...)
+	stdout, _ := command.StdoutPipe()
+	err := command.Start()
+	if err != nil {
+		color.Red(err.Error())
+	}
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
+	command.Wait()
 }
