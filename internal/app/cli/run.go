@@ -67,14 +67,18 @@ func execute(path string, appCmd string, wg *sync.WaitGroup) {
 	command := exec.Command(parts[0], parts[1:]...)
 	command.Dir = path
 	stdout, _ := command.StdoutPipe()
+	stderr, _ := command.StderrPipe()
 	err := command.Start()
 	if err != nil {
 		color.Red(err.Error())
 	}
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
-		m := scanner.Text()
-		fmt.Println(m)
+		fmt.Println(scanner.Text())
+	}
+	errScanner := bufio.NewScanner(stderr)
+	for errScanner.Scan() {
+		color.Red(scanner.Text())
 	}
 	command.Wait()
 }
