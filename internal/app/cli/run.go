@@ -1,15 +1,13 @@
 package cli
 
 import (
-	"bufio"
-	"fmt"
 	"os"
 	"os/exec"
 	"reflect"
 	"strings"
-	"sync"
 
 	"github.com/cecotw/strut-cli/internal/app/product"
+	"github.com/cecotw/strut-cli/internal/pkg/command"
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
@@ -37,49 +35,24 @@ func runCommand(c *cli.Context) error {
 		color.Red("Error >>> Specify command")
 		return nil
 	}
-
-	appWg := &sync.WaitGroup{}
-	appWg.Add(len(product.Applications))
-	defer appWg.Wait()
-	for _, app := range product.Applications {
-		if app.LocalConfig == nil || app.LocalConfig.Commands == nil {
-			continue
-		}
-		go runAppCommands(app, cmd, appWg)
-	}
+	cmds := buildMapCmds(cmd, product.Applications)
+	command.ExecuteGroup(cmds)
 	return nil
 }
 
-func runAppCommands(app *product.Application, cmd string, wg *sync.WaitGroup) {
-	defer wg.Done()
-	appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
-	cwg := &sync.WaitGroup{}
-	cwg.Add(len(appCmds))
-	defer cwg.Wait()
-	for _, appCmd := range appCmds {
-		go Execute(app.LocalConfig.Path, appCmd, cwg)
+func buildMapCmds(cmd string, apps []*product.Application) []*exec.Cmd {
+	cmds := make([]*exec.Cmd, 0)
+	for _, app := range apps {
+		if app.LocalConfig == nil || app.LocalConfig.Commands == nil {
+			continue
+		}
+		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
+		for _, appCmd := range appCmds {
+			parts := strings.Fields(appCmd)
+			cmd := exec.Command(parts[0], parts[1:]...)
+			cmd.Dir = app.LocalConfig.Path
+			cmds = append(cmds, cmd)
+		}
 	}
-}
-
-// Execute executes a command and logs with scanner
-func Execute(path string, cmd string, wg *sync.WaitGroup) {
-	defer wg.Done()
-	parts := strings.Fields(cmd)
-	command := exec.Command(parts[0], parts[1:]...)
-	command.Dir = path
-	stdout, _ := command.StdoutPipe()
-	stderr, _ := command.StderrPipe()
-	err := command.Start()
-	if err != nil {
-		color.Red(err.Error())
-	}
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
-	}
-	errScanner := bufio.NewScanner(stderr)
-	for errScanner.Scan() {
-		color.Red(scanner.Text())
-	}
-	command.Wait()
+	return cmds
 }
