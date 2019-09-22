@@ -36,7 +36,7 @@ func runCommand(c *cli.Context) error {
 		return nil
 	}
 	cmds := buildMapCmds(cmd, product.Applications)
-	command.ExecuteGroup(cmds)
+	command.SpawnGroup(cmds)
 	return nil
 }
 

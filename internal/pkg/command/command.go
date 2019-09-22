@@ -21,6 +21,8 @@ func ExecuteGroup(cmds []*exec.Cmd) {
 	}
 }
 
+var cwd, _ = os.Getwd()
+
 // Execute executes an external process
 func Execute(cmd *exec.Cmd, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -28,11 +30,7 @@ func Execute(cmd *exec.Cmd, wg *sync.WaitGroup) {
 	if lookErr != nil {
 		panic(lookErr)
 	}
-	// fmt.Println(cmd.Path)
-	// os.Chdir(cmd.Path)
-	// fmt.Println(os.Getwd())
-	env := os.Environ()
-	execErr := syscall.Exec(binary, cmd.Args, env)
+	execErr := syscall.Exec(binary, cmd.Args, os.Environ())
 	if execErr != nil {
 		panic(execErr)
 	}
