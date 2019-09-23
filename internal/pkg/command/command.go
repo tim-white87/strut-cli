@@ -1,15 +1,15 @@
 package command
 
 import (
-	"bufio"
-	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"sync"
-	"syscall"
 
 	"github.com/fatih/color"
 )
+
+var cwd, _ = os.Getwd()
 
 // ExecuteGroup executes a group of external processes
 func ExecuteGroup(cmds []*exec.Cmd) {
@@ -21,19 +21,18 @@ func ExecuteGroup(cmds []*exec.Cmd) {
 	}
 }
 
-var cwd, _ = os.Getwd()
-
 // Execute executes an external process
 func Execute(cmd *exec.Cmd, wg *sync.WaitGroup) {
 	defer wg.Done()
-	binary, lookErr := exec.LookPath(cmd.Args[0])
-	if lookErr != nil {
-		panic(lookErr)
+	defer cmd.Wait()
+	stdout, _ := cmd.StdoutPipe()
+	stderr, _ := cmd.StderrPipe()
+	err := cmd.Start()
+	if err != nil {
+		color.Red(err.Error())
 	}
-	execErr := syscall.Exec(binary, cmd.Args, os.Environ())
-	if execErr != nil {
-		panic(execErr)
-	}
+	go io.Copy(os.Stdout, stdout)
+	go io.Copy(os.Stderr, stderr)
 }
 
 // SpawnGroup spawns a group of processes
@@ -49,19 +48,11 @@ func SpawnGroup(cmds []*exec.Cmd) {
 // Spawn spawn a child process
 func Spawn(cmd *exec.Cmd, wg *sync.WaitGroup) {
 	defer wg.Done()
-	stdout, _ := cmd.StdoutPipe()
-	stderr, _ := cmd.StderrPipe()
+	defer cmd.Wait()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	err := cmd.Start()
 	if err != nil {
 		color.Red(err.Error())
 	}
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
-	}
-	errScanner := bufio.NewScanner(stderr)
-	for errScanner.Scan() {
-		color.Red(scanner.Text())
-	}
-	cmd.Wait()
 }
