@@ -16,6 +16,7 @@ var commands = []cli.Command{
 	runCmd,
 	provisionCmd,
 	destroyCmd,
+	cloneCmd,
 }
 
 // StartCli - gathers command line args
