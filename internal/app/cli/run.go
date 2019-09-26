@@ -49,7 +49,19 @@ func buildMapCmds(cmd string, apps []*product.Application) []*exec.Cmd {
 		appCmds := reflect.ValueOf(app.LocalConfig.Commands).Elem().FieldByName(strings.Title(cmd)).Interface().([]string)
 		for _, appCmd := range appCmds {
 			parts := strings.Fields(appCmd)
-			cmd := exec.Command(parts[0], parts[1:]...)
+			args := make([]string, 0)
+			for i := 0; i < len(parts); {
+				arg := parts[i]
+				if strings.HasPrefix(arg, "'") && strings.HasSuffix(parts[i+1], "'") {
+					arg = strings.Replace(arg, "'", "", 1) + " " + strings.Replace(parts[i+1], "'", "", 1)
+					args = append(args, arg)
+					i += 2
+				} else {
+					args = append(args, arg)
+					i++
+				}
+			}
+			cmd := exec.Command(args[0], args[1:]...)
 			cmd.Dir = app.LocalConfig.Path
 			cmds = append(cmds, cmd)
 		}
