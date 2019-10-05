@@ -61,6 +61,7 @@ func (m *awsModel) Provision() {
 		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 	}
 	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	defer wg.Wait()
 	go m.monitorStackResourcesStatus(wg)
 }
