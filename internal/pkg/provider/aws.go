@@ -67,18 +67,12 @@ func (m *awsModel) Provision() {
 }
 
 func (m *awsModel) Destroy() {
-	switch m.CheckStatus() {
-	case Status.NotFound:
-
-	case Status.Complete:
+	status := m.CheckStatus()
+	if status == Status.Complete || status == Status.Failed {
 		color.Green("Deleting >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 		m.cfService.DeleteStack(&cloudformation.DeleteStackInput{
 			StackName: m.stack.StackName,
 		})
-	case Status.InProgress:
-
-	case Status.Failed:
-		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
