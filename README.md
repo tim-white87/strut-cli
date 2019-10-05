@@ -15,9 +15,11 @@ Please be aware this is under active development and only supports AWS at the mo
 
 ## Installation
 
+MacOs
 ```
-npm i -g strut-cli
+brew install strut-cli
 ```
+TODO add other operating system installs
 
 ## Usage
 ```
@@ -33,11 +35,7 @@ See above help for details
 ## Contributing
 
 ```
-$ npm i -g . // From project clone location
-```
-
-```
-$ npm link
+$ make install // From project clone location
 ```
 
 
