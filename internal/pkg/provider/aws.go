@@ -59,7 +59,8 @@ func (m *awsModel) Provision() {
 	case Status.Failed:
 		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 	}
-	m.monitorStackResourcesStatus()
+	done := make(chan bool)
+	m.monitorStackResourcesStatus(done)
 }
 
 func (m *awsModel) Destroy() {
@@ -67,17 +68,21 @@ func (m *awsModel) Destroy() {
 	case Status.NotFound:
 
 	case Status.Complete:
+		color.Green("Deleting >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 		m.cfService.DeleteStack(&cloudformation.DeleteStackInput{
 			StackName: m.stack.StackName,
 		})
 	case Status.InProgress:
-
+		color.Yellow("Changes in progress")
 	case Status.Failed:
+		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
 	}
+	done := make(chan bool)
+	m.monitorStackResourcesStatus(done)
 }
 
 func (m *awsModel) CheckStatus() string {
-	m.getStacks()
+	m.getStack()
 	if m.stack == nil {
 		return Status.NotFound
 	}
@@ -85,7 +90,8 @@ func (m *awsModel) CheckStatus() string {
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteComplete {
-		color.Green("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.Green("Resource: %s >>> Status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.HiBlack("Reason: %s", *m.stack.StackStatusReason)
 		return Status.Complete
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackInProgress ||
@@ -95,28 +101,21 @@ func (m *awsModel) CheckStatus() string {
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusReviewInProgress {
-		color.Yellow("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
-		stackResources, err := m.cfService.DescribeStackResources(&cloudformation.DescribeStackResourcesInput{
-			StackName: m.stack.StackName,
-		})
-		if err != nil {
-			color.Red(err.Error())
-		}
-		for _, stackResource := range stackResources.StackResources {
-			color.HiBlack("Resource >>> Status: %s", *stackResource.ResourceStatus)
-		}
-
+		color.Yellow("Resource: %s >>> Status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.HiBlack("Reason: %s", *m.stack.StackStatusReason)
 		return Status.InProgress
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackFailed {
-		color.Red("Status >>> Resource: %s has status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.Red("Resource: %s >>> Status: %s", *m.stack.StackName, *m.stack.StackStatus)
+		color.HiBlack("Reason: %s", *m.stack.StackStatusReason)
+		return Status.Failed
 	}
-	return Status.Failed
+	return Status.NotFound
 }
 
-func (m *awsModel) getStacks() {
+func (m *awsModel) getStack() {
 	stackOutput, err := m.cfService.DescribeStacks(&cloudformation.DescribeStacksInput{
 		StackName: &m.resource.Name,
 	})
@@ -128,19 +127,15 @@ func (m *awsModel) getStacks() {
 	}
 }
 
-func (m *awsModel) monitorStackResourcesStatus() {
-loop:
-	for {
-		time.Sleep(time.Second)
-		switch m.CheckStatus() {
-		case Status.NotFound:
-			break loop
-		case Status.Complete:
-			break loop
-		case Status.InProgress:
-
-		case Status.Failed:
-			break loop
-		}
+func (m *awsModel) monitorStackResourcesStatus(ch chan bool) {
+	time.Sleep(time.Second)
+	switch m.CheckStatus() {
+	case Status.NotFound:
+		close(ch)
+	case Status.Complete:
+		close(ch)
+	case Status.InProgress:
+	case Status.Failed:
+		close(ch)
 	}
 }
