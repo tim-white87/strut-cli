@@ -67,6 +67,9 @@ func (m *awsModel) Provision() {
 }
 
 func (m *awsModel) Destroy() {
+	// TODO empty S3 buckets
+	// TODO Delete Origin Access Identity
+	// TODO delete all cognito users
 	status := m.CheckStatus()
 	if status == Status.Complete || status == Status.Failed {
 		color.Green("Deleting >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
