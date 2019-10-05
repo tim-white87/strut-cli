@@ -125,6 +125,8 @@ func (m *awsModel) getStack() {
 	})
 	if err != nil {
 		color.Red(err.Error())
+		m.stack = nil
+		return
 	}
 	if len(stackOutput.Stacks) > 0 {
 		m.stack = stackOutput.Stacks[0]
