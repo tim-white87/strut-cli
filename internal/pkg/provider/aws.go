@@ -43,18 +43,24 @@ func (m *awsModel) Provision() {
 	switch m.CheckStatus() {
 	case Status.NotFound:
 		color.Green("Creating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
-		m.cfService.CreateStack(&cloudformation.CreateStackInput{
+		_, err := m.cfService.CreateStack(&cloudformation.CreateStackInput{
 			StackName:    &m.resource.Name,
 			Capabilities: cababilities,
 			TemplateBody: &m.template,
 		})
+		if err != nil {
+			color.Red("Create Error >>> %s: %s", m.resource.Name, err.Error())
+		}
 	case Status.Complete:
 		color.Green("Updating >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
-		m.cfService.UpdateStack(&cloudformation.UpdateStackInput{
+		_, err := m.cfService.UpdateStack(&cloudformation.UpdateStackInput{
 			StackName:    &m.resource.Name,
 			Capabilities: cababilities,
 			TemplateBody: &m.template,
 		})
+		if err != nil {
+			color.Red("Update Error >>> %s: %s", m.resource.Name, err.Error())
+		}
 	case Status.InProgress:
 		color.Yellow("Changes in progress")
 	case Status.Failed:
@@ -73,9 +79,12 @@ func (m *awsModel) Destroy() {
 	status := m.CheckStatus()
 	if status == Status.Complete || status == Status.Failed {
 		color.Green("Deleting >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
-		m.cfService.DeleteStack(&cloudformation.DeleteStackInput{
+		_, err := m.cfService.DeleteStack(&cloudformation.DeleteStackInput{
 			StackName: m.stack.StackName,
 		})
+		if err != nil {
+			color.Red("Destroy Error >>> %s: %s", m.resource.Name, err.Error())
+		}
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -123,14 +132,9 @@ func (m *awsModel) CheckStatus() string {
 }
 
 func (m *awsModel) getStack() {
-	stackOutput, err := m.cfService.DescribeStacks(&cloudformation.DescribeStacksInput{
+	stackOutput, _ := m.cfService.DescribeStacks(&cloudformation.DescribeStacksInput{
 		StackName: &m.resource.Name,
 	})
-	if err != nil {
-		color.Red(err.Error())
-		m.stack = nil
-		return
-	}
 	if len(stackOutput.Stacks) > 0 {
 		m.stack = stackOutput.Stacks[0]
 	}
