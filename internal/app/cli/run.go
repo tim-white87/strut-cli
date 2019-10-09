@@ -35,14 +35,15 @@ func runCommand(c *cli.Context) error {
 		color.Red("Error >>> Specify command")
 		return nil
 	}
-	cmds := buildMapCmds(cmd, product.Applications)
-	command.SpawnGroup(cmds)
+	mapCmds := buildMapCmds(cmd, product.Applications)
+	command.SpawnMapGroup(mapCmds)
 	return nil
 }
 
-func buildMapCmds(cmd string, apps []*product.Application) []*exec.Cmd {
-	cmds := make([]*exec.Cmd, 0)
+func buildMapCmds(cmd string, apps []*product.Application) map[string][]*exec.Cmd {
+	mapCmds := make(map[string][]*exec.Cmd)
 	for _, app := range apps {
+		cmds := make([]*exec.Cmd, 0)
 		if app.LocalConfig == nil || app.LocalConfig.Commands == nil {
 			continue
 		}
@@ -65,6 +66,7 @@ func buildMapCmds(cmd string, apps []*product.Application) []*exec.Cmd {
 			cmd.Dir = app.LocalConfig.Path
 			cmds = append(cmds, cmd)
 		}
+		mapCmds[app.Name] = cmds
 	}
-	return cmds
+	return mapCmds
 }
