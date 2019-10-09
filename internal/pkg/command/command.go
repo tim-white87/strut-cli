@@ -55,10 +55,7 @@ func SpawnMapGroup(mapCmds map[string][]*exec.Cmd) {
 		go func(cmds []*exec.Cmd, wg *sync.WaitGroup) {
 			defer wg.Done()
 			for _, cmd := range cmds {
-				swg := &sync.WaitGroup{}
-				swg.Add(1)
-				defer swg.Wait()
-				go Spawn(cmd, swg)
+				Start(cmd)
 			}
 		}(cmds, wg)
 	}
@@ -67,6 +64,11 @@ func SpawnMapGroup(mapCmds map[string][]*exec.Cmd) {
 // Spawn spawn a child process
 func Spawn(cmd *exec.Cmd, wg *sync.WaitGroup) {
 	defer wg.Done()
+	Start(cmd)
+}
+
+// Start Start a process
+func Start(cmd *exec.Cmd) {
 	defer cmd.Wait()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
