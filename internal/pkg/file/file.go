@@ -12,7 +12,7 @@ import (
 // Types file types
 var Types = &TypeRegistry{
 	JSON: &Type{"json"},
-	YAML: &Type{"yaml"},
+	YAML: &Type{"yml"},
 }
 
 // TypeList list of types
