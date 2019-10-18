@@ -65,6 +65,7 @@ func (m *awsModel) Provision() {
 		color.Yellow("Changes in progress")
 	case Status.Failed:
 		m.Destroy()
+		return
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
