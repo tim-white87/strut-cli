@@ -64,7 +64,7 @@ func (m *awsModel) Provision() {
 	case Status.InProgress:
 		color.Yellow("Changes in progress")
 	case Status.Failed:
-		color.Red("Rolling back >>> Resource: %s on Provider: %s", m.resource.Name, m.resource.Provider.Name)
+		m.Destroy()
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -105,8 +105,7 @@ func (m *awsModel) CheckStatus() string {
 	if *m.stack.StackStatus == cloudformation.StackStatusCreateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackComplete ||
-		*m.stack.StackStatus == cloudformation.StackStatusDeleteComplete ||
-		*m.stack.StackStatus == cloudformation.StackStatusRollbackComplete {
+		*m.stack.StackStatus == cloudformation.StackStatusDeleteComplete {
 		status = Status.Complete
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackInProgress ||
@@ -120,7 +119,8 @@ func (m *awsModel) CheckStatus() string {
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackFailed ||
 		*m.stack.StackStatus == cloudformation.StackStatusDeleteFailed ||
-		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackFailed {
+		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackFailed ||
+		*m.stack.StackStatus == cloudformation.StackStatusRollbackComplete {
 		status = Status.Failed
 	}
 	if lastStatus != *m.stack.StackStatus {
