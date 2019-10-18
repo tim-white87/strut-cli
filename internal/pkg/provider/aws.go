@@ -105,7 +105,8 @@ func (m *awsModel) CheckStatus() string {
 	if *m.stack.StackStatus == cloudformation.StackStatusCreateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateComplete ||
 		*m.stack.StackStatus == cloudformation.StackStatusUpdateRollbackComplete ||
-		*m.stack.StackStatus == cloudformation.StackStatusDeleteComplete {
+		*m.stack.StackStatus == cloudformation.StackStatusDeleteComplete ||
+		*m.stack.StackStatus == cloudformation.StackStatusRollbackComplete {
 		status = Status.Complete
 	} else if *m.stack.StackStatus == cloudformation.StackStatusCreateInProgress ||
 		*m.stack.StackStatus == cloudformation.StackStatusRollbackInProgress ||
