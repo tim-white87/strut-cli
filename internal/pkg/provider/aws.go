@@ -37,7 +37,8 @@ func NewAwsModel(r *Resource) Model {
 }
 
 var iamCapability = "CAPABILITY_NAMED_IAM"
-var cababilities = []*string{&iamCapability}
+var autoExpandCapability = "CAPABILITY_AUTO_EXPAND"
+var cababilities = []*string{&iamCapability, &autoExpandCapability}
 
 func (m *awsModel) Provision() {
 	switch m.CheckStatus() {
